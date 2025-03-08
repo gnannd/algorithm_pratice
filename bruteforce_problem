@@ -1,0 +1,80 @@
+//백준 14889
+//https://www.acmicpc.net/problem/14889
+//팀을 반 나누는 문제 bruteforce로만 풀어도 N<=20 이여서 시간복잡도가 nCn/2 로 2초이내 충분.
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int n=0;
+int answer=1e9;
+int cal(vector<int>&team,vector<vector<int>>&ability)  //  n/2C2로 지장없음.
+{
+    int team_total=0;
+    for(int i=0;i<team.size();i++)
+    {
+        for(int j=i+1;j<team.size();j++)
+        {
+            team_total+=ability[team[i]][team[j]]+ability[team[j]][team[i]];
+        }
+    }
+    return team_total;
+}
+
+
+void minimize(vector<int>&redteam,vector<vector<int>>&ability)
+{
+    
+    if(redteam.size()>0 and n-(redteam.back()+1) < (n/2)-redteam.size()) //뽑아야하는 인원 수가 뽑을수 있는 인원보다 많으면 탐색 중지
+        return;                                                          //vector.back() 쓸 때 비어있는 경우 오류 발생 따로 size로 처리.
+        
+    if(redteam.size()==n/2)
+    {
+        
+        vector<int>blueteam;                                             //처음에 total 점수에서 red점수를 뺀거로 blue점수로 계산했는데 생각해보니 total 점수= red + blue 가 성립이 안됌.
+        vector<int>exist(n);                                             //그래서 blue 점수를 다시 구하기 위해 red 인원들을 전체인원(exist벡터)에 표시하고 표시안된 인원을 blue 인원으로 함.
+        for(int i=0;i<n/2;i++)
+            exist[redteam[i]]=1;
+        for(int i=0;i<n;i++)
+            if(exist[i]==0)
+                blueteam.push_back(i);
+        
+        
+        int red_total=cal(redteam,ability);
+        int blue_total=cal(blueteam,ability);
+        
+         
+        answer=min(answer,abs(blue_total-red_total));   
+    }
+    
+    int start=0;
+    if(redteam.size())   // 뽑는 순서가 상관없기 때문에 오름차순으로 뽑음.
+        start=redteam.back()+1;
+        
+    for(int i=start;i<n;i++)
+    {
+        redteam.push_back(i);
+        minimize(redteam,ability);
+        redteam.pop_back();
+    }
+}
+int main()
+{
+    cin>>n;
+    vector<vector<int>>ability(n,vector<int>(n,0));
+    vector<int>redteam;
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<n;j++)
+        {
+            cin>>ability[i][j];
+        }
+    }
+    
+    minimize(redteam,ability);
+    
+    cout<<answer;
+
+    return 0;
+}
