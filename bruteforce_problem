@@ -32,8 +32,8 @@ void minimize(vector<int>&redteam,vector<vector<int>>&ability)
     if(redteam.size()==n/2)
     {
         
-        vector<int>blueteam;                                             //처음에 total 점수에서 red점수를 뺀거로 blue점수로 계산했는데 생각해보니 total 점수= red + blue 가 성립이 안됌.
-        vector<int>exist(n);                                             //그래서 blue 점수를 다시 구하기 위해 red 인원들을 전체인원(exist벡터)에 표시하고 표시안된 인원을 blue 인원으로 함.
+        vector<int>blueteam;                //처음에 total 점수에서 red점수를 뺀거로 blue점수로 계산했는데 생각해보니 total 점수= red + blue 가 성립이 안됌.
+        vector<int>exist(n);                //그래서 blue 점수를 다시 구하기 위해 red 인원들을 전체인원(exist벡터)에 표시하고 표시안된 인원을 blue 인원으로 함.
         for(int i=0;i<n/2;i++)
             exist[redteam[i]]=1;
         for(int i=0;i<n;i++)
