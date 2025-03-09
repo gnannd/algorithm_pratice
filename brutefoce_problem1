@@ -1,0 +1,109 @@
+//백준 17779번
+//x,y 기준으로 d1,d2 길이만큼 사각형을 만들어 5개구역으로 나눈후 각 구역 인구수 차이를 최소로 만드는 문제.
+//x,y,d1,d2 4개의 변수가 가질수있는 모든 조합을 찾아 최소를 찾았다. ->brutefoce문제로 시간복잡도는 각 변수의 범위가 20이하이므로 충분히 시간안에 풀수있다.
+//O(x*y*d1*d2) * O(x*y)     // 조합찾기 * 인구수 합치기
+//발상은 어렵지는 않았지만 문제를 자세히 보면 (x,y) 행 과 열로 우리가 일반적으로 생각하는것과는 반대다. 이부분을 간과해서 시간이 오래걸렸다.
+//다음부터 문제를 제대로 봐야 겠다. 아무튼 구현자체는 어렵지 않았다. 경계선 표시부분을 2차원 배열에 표시해서 구역값을 계산할 때 이용해도 되지만 수식으로도 어렵지 않게 풀 수 있었다. 
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+int n=0;    //편의를 위해 전역변수 선언
+int answer=1e5; 
+int total=0;
+
+bool inside(int y,int x,int d1,int d2)
+{
+    if(x+d1+d2>=n or y-d1<0 or y+d2>=n)
+        return false;
+    return true;
+}
+
+void diff_cal(vector<vector<int>>&person,int y,int x,int d1,int d2)
+{
+    if(!inside(y,x,d1,d2)) //범위 밖 예외처리.
+        return;
+    
+    int area_1=0,area_2=0,area_3=0,area_4=0; //사실 구역번호는 의미가 없음 최대최소 차이만 중요해서
+    
+    for(int i=0;i<y;i++)//1번 구역
+    {
+        for(int j=0;j<=x+d1;j++)
+        {
+            if(j==x+y-i)          //5구역 경계선인지 확인하는 함수 대신 수식으로 대체
+                break;
+            area_1+=person[i][j];
+        }
+    }
+    
+    for(int i=y;i<n;i++)//2번 구역
+    {
+        for(int j=0;j<x+d2;j++)
+        {
+            if(j==x+i-y)
+                break;
+            area_2+=person[i][j];
+        }
+    }
+    
+    for(int i=y-d1+d2+1;i<n;i++)//3번 구역
+    {
+        for(int j=n-1;j>=x+d2;j--)
+        {
+            if(j==x+d1+d2-(i-y+d1-d2))
+                break;
+            area_3+=person[i][j];
+        }
+    }
+    
+    for(int i=0;i<=y-d1+d2;i++)//4번 구역
+    {
+        for(int j=n-1;j>x+d1;j--)
+        {
+            if(j==x+d1-(y-d1)+i)
+                break;
+            area_4+=person[i][j];
+        }
+    }
+    
+    int area_5=total-area_1-area_2-area_3-area_4; // 5구역은 전체에서 1,2,3,4 구역을 뺸걸로 계산
+    int min1=min(min(min(area_1,area_2),min(area_3,area_4)),area_5);
+    int max1=max(max(max(area_1,area_2),max(area_3,area_4)),area_5);
+    
+    answer=min(answer,max1-min1);
+}
+
+
+int main()
+{
+    
+    cin>>n;
+    vector<vector<int>>person(n,vector<int>(n,0));
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<n;j++)
+        {
+            cin>>person[i][j];
+            total+=person[i][j];
+        }
+    }
+    
+    //변수가 4개 밖에 없으므로 4중 for문으로 구현
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<n;j++)
+        {
+            for(int d1=1;d1<n;d1++)
+            {
+                for(int d2=1;d2<n;d2++)
+                {
+                    diff_cal(person,i,j,d1,d2);
+                }
+            }
+        }
+    }
+    cout<<answer;
+
+    return 0;
+}
