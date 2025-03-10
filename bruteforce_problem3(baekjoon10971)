@@ -1,0 +1,67 @@
+//백준 10971 
+//일반적인 외판원문제 조건이 원래 기본적인 외판원문제랑 달리 없을 수 있는 길이 있다, 방향이 있는 거리 다
+//라는 점에서 좀 다르지만 똑같은 알고리즘으로 풀 수 있음.(다만, 길이 없는 경우는 따로 처리)
+//시간 복잡도는 N! 이고 범위가 10이하인걸 생각하면 bruteforce(순열) 만으로 충분히 시간안에 풀 수 있음
+//입력값의 최대크기가 1000000 이지만 최악을 생각해도 1억에 한참 못미치므로 int 자료형으로도 충분함.
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+bool visit_check(vector<int>&path,int order)
+{
+    for(int i=0;i<path.size();i++)
+    {
+        if(order==path[i])
+            return true;
+    }
+    return false;
+}
+
+int min_cost_sum(vector<vector<int>>&cost,vector<int>&path) {
+    
+    if(path.size()==cost.size()) // 모든 도시를 방문했다면.
+    {
+        if(cost[path[path.size()-1]][path[0]]==0)// 돌아가는 길도 없을 수 있으니까.
+            return 1e9;
+        return cost[path[path.size()-1]][path[0]];
+    }
+    
+    int ret=1e9;
+    
+    for(int i=1;i<cost.size();i++)
+    {
+        int distance=cost[path[path.size()-1]][i];
+        if(!visit_check(path,i) and distance!=0) //길이 있는지, 방문했던 도시인지 확인.
+        {
+            path.push_back(i);
+            ret=min(ret,distance+min_cost_sum(cost,path));
+            path.pop_back();
+        }
+    }
+    
+    return ret;
+}
+
+int main()
+{
+    int n=0;
+    cin>>n;
+    
+    vector<vector<int>>cost(n,vector<int>(n));
+    
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<n;j++)
+        {
+            cin>>cost[i][j];
+        }
+    }
+    
+    vector<int>path;
+    path.push_back(0); //시작점은 상관없기에 0부터 시작을 고정.
+    
+    cout<<min_cost_sum(cost,path);
+    
+    return 0;
+}
