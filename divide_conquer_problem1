@@ -1,0 +1,38 @@
+//백준 4779 칸토어 집합
+// 전형적인 분할 문제-> 크기가같은 3개의 부분으로 나눠서 작은 단위까지 쪼갠다음 병합.
+// 공백 부분 과 문자 부분 하나( 두구역이 같으므로 하나로 통합) -> 문자 부분만 재귀 하므로
+// 깊이는 n이랑 같음. 부분문제는 결국 하나로 같음. 시간복잡도는 병합부분만 생각하면 됌.
+// 결국 문자열길이랑 같음. 시간복잡도 : O(3^n) -> n이 최대 12 이므로 최악의 가정을 해도 3^12
+// 시간안에 충분히 풀 수 있음.
+//처음에 파일의 끝을 확인할 떄  cin 받기전에 확인 했는데 생각해보니 파일의 끝을 알려면 cin이 읽고나서 실패상태로 바껴야 확인 가능하기에
+//cin을 받고 나서 파일의 끝인걸 확인하는게 맞음. 
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+string get_string(int n)
+{
+    if(n==0)
+        return string(1,'-');
+    
+    string s = get_string(n-1);
+    
+    return s + string(int(pow(3,n-1)),' ') + s;
+}
+
+int main()
+{
+    int n=0;
+    while(1) // cin으로 받다 파일의 끝에 다다르면 이상한 값이 들어가므로 cin이후에 파일의 끝인지 확인. 
+    {
+        cin>>n; 
+        if(cin.eof()) // 파일의 끝이면.
+            break;
+        cout<<get_string(n)<<'\n';
+    } 
+    return 0;
+}
