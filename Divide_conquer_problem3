@@ -1,0 +1,77 @@
+//백준 25686 1차원
+//분할정복문제로 문제의 크기를 절반으로 계속 나눈다(분할) 그리고 나눈 정복된 수열 끼리 합쳐 원래크기의 답을 구한다.
+//이 문제를 풀기 위해 알아야 하는 핵심은 정복된 수열을 2를 곱하면 정복된 수열의 2배크기의 짝수들만 봅을 수 있고
+// 2를 곱하고 1을 빼면 정복된 수열의 2배크기의 홀수들만 뽑을 수 있다.
+//그리고 나온 정복된 짝수수열 와 정복된 홀수수열을 이어 붙이면 2배크기의 정복된 수열을 만들 수 있다는 것.
+//참고로 짝수랑 홀수 중간에 있는 값은 정수가 될 수 없음.->그래서 정복된 수열을 만들 수 있음. 
+// 깊이는 lgn 이고 병합부분은 n(수열을 합치는 부분)
+//시간 복잡도 nlgn
+//분할 정복은 병합할 떄 각 부분문제에서 정복한 부분에 영향이 가면 안됌.
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+vector<int> operator+(vector<int>&even,vector<int>&odd) //배열 이어붙이기.
+{
+    vector<int>seq(even);
+    
+    for(int i=0;i<odd.size();i++)
+        seq.push_back(odd[i]);
+    
+    return seq;
+    
+}
+
+vector<int> make_sol(int n)
+{
+    if(n==1)
+        return {1};
+    
+    vector<int>seq(make_sol(n/2)); //n이 짝수든 홀수든 짝수 수열은 동일하게 n/2로 구함.
+    vector<int>even(n/2);
+    vector<int>odd(n/2+1);
+    for(int i=0;i<n/2;i++)
+    {
+        even[i]=seq[i]*2;
+    }
+    
+    
+    if(n%2==0) //n이 짝수일때
+    {
+        for(int i=0;i<n/2;i++)
+        {
+            odd[i]=seq[i]*2-1;
+        }
+        odd.pop_back();
+    }
+    else // n이 홀수 일 떄 -> 여기서 홀수 부분을 위해 다시 계산해줘야함 그래야 2배크기의 정복된 홀수수열을 만들 수 있음.
+    {
+        vector<int>seq(make_sol(n/2+1));
+        for(int i=0;i<n/2+1;i++)
+        {
+            odd[i]=seq[i]*2-1;
+        }
+        
+    }
+    
+    return even+odd;
+}
+
+int main()
+{
+    int n=0;
+    cin>>n;
+    
+    vector<int>answer;
+    
+    answer=make_sol(n);
+    
+    for(int i=0;i<answer.size();i++)
+    {
+        cout<<answer[i]<<' ';
+    }
+    
+    return 0;
+}
