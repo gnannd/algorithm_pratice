@@ -1,0 +1,66 @@
+//백준 2228번 구간 나누기
+//매 원소들이 구간에 포함되냐 안되냐로 브루트 포스
+//정확히 구간 개수를 맞춰야 함
+// 매선택에 있어 전에 구간이 이어져 있는지 여부도 중요함. 그래야 선택한다 안한다에 따라 값이 달라짐.
+// 전에 구간이 이어져 있는지 여부, 남은 구간개수, 몇번쨰 원소선택차례인지. 에 따라 값이 달라짐.
+//이를 바탕으로 입력값으로 받아들여 메모이제이션 ->다이나믹.
+//시간복잡도: O(2nm) n이 최대 100이고 m이 50임 충분히 시간안에 풀수 있다.
+
+#include <iostream>
+#include <string.h>
+
+using namespace std;
+
+int cache[100][51][2];
+int num[100];
+
+int get_sum(int i,int cnt,bool type)
+{
+    if(cnt==0 and type==0) //구간을 다선택했으면.
+        return 0;
+    if(i==-1)
+    {
+        if(cnt==0) //마지막원소를 마지막 구간에 넣은 경우 
+            return 0;
+        else //구간개수가 남은경우
+            return -1e8;
+    }
+    
+    int &ret=cache[i][cnt][type];
+    
+    if(ret!=-1e9)
+        return ret;
+    
+    ret=0;
+    if(type==1)
+        ret=max(get_sum(i-1,cnt,0),num[i]+get_sum(i-1,cnt,1));
+    else
+        ret=max(get_sum(i-1,cnt,0),num[i]+get_sum(i-1,cnt-1,1));
+    
+    return ret;
+}
+
+int main()
+{
+    int n=0,m=0;
+    cin>>n>>m;
+    
+    for(int i=0;i<100;i++) //cache 값 초기화 -1이나 0으로 초기화 하면 안되기 때문에 memset 못쓰고 직접함.ㅠ
+    {
+        for(int j=0;j<=50;j++)
+        {
+            for(int k=0;k<2;k++)
+            {
+                cache[i][j][k]=-1e9;
+            }
+        }
+    }
+    
+    for(int i=0;i<n;i++)
+        cin>>num[i];
+    
+    
+    cout<<get_sum(n-1,m,0);
+    
+    return 0;
+}
