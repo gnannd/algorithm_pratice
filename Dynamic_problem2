@@ -1,0 +1,61 @@
+//백준 1301 비즈 공예
+//모든조합을 생각해본다. ->브루트포스 ++추가로 같은 색깔끼리는 순서가 중요하지 않다.
+//중복계산이 있다->다이나믹
+//N이 3에서 5로 매우작음.
+//공색깔선택에 있어 남은 색깔별 공개수랑 전 두개의 공색깔이 중요한 요소임 -> 경우의 수를 구하는데 필요한 요소임.
+//전 두개의 공 색깔이랑 남은 공의 색깔별 개수에 따라 값이 달라짐.
+//cache: 전두개의 공색깔이랑 남은 색깔별 공 개수가 주어졌을 때 만들 수 있는 경우의 수
+//각 공의 개수 최대지는 10이므로 11진수 비트마스킹이용
+//전 두개의 공 조합 n^2 -> 다만 처음과 두번쨰 선택 부분을 위해 전에 아무것도 없는걸 뜻하는 원소하나 추가 (n+1)^2
+//시간복잡도 O(n^2*11^n*n) n이 매우작아 시간안에 충분히 들어옴.
+//최대값이 충분히 int의 범위를 넘어서고도 남기 때문에 long long 자료형 사용 
+//메모리 한도가 128메가바이트여서 공간복잡도가 크긴하지만 문제없긴함...실제로47mbyte로 아슬아슬하긴했음.
+
+
+#include <iostream>
+#include <cstring>
+#include <cmath>
+
+using namespace std;
+
+int n=0;
+long long cache[6][6][(int)pow(11,5)];
+
+long long get_method(int one,int two,int cnt)
+{
+    if(cnt==0)
+        return 1;
+    
+    long long &ret=cache[one][two][cnt];
+    if(ret!=-1) return ret;
+    ret=0;
+    
+    for(int i=0;i<n;i++)
+    {
+        if(one!=i and two!=i and (cnt%(int)pow(11,i+1))/(int)pow(11,i)!=0)
+        {
+            ret+=get_method(two,i,cnt-(int)pow(11,i));
+        }
+    }
+    return ret;
+}
+
+int main()
+{
+    
+    cin>>n;
+    
+    int cnt=0;
+    for(int i=0;i<n;i++)
+    {
+        int num=0;
+        cin>>num;
+        cnt+=pow(11,i)*num;
+    }
+    
+    memset(cache,-1,sizeof(cache));
+    
+    cout<<get_method(n,n,cnt);
+    
+    return 0;
+}
