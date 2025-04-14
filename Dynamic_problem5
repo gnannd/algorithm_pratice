@@ -1,0 +1,65 @@
+//백준 11066 파일합치기
+//파일을 합치는데 합치는 최소비용을 구하라는 문제고, 파일을 합치는데 드는 비용은 두파일의 크기 합이다.
+//파일의 개수 K(최대 500), 각 파일의 크기는 최대 10000
+//연속으로 순서에 맞게 붙여 하기 때문에 결국 최종적으로 합칠때는 두구간 왼쪽구간과 오른쪽구간을 합칠것이다.
+//이말은 즉슨 구간의 합치는 최소비용은 모든 왼쪽구간과 오른쪽구간의 조합으로 구할 수 있다.
+//여기서 구간이 동일하다면 같은 최소비용을 낼것이므로 중복계산이 발생하고 다이나믹으로 풀었다.
+//시작점과 끝점에 따라 값이 정해지므로 입력값으로 받아 문제를 풀었다.
+//k가 최대 500이기 때문에  500*500*500 으로 충분히 시간안에 풀 수 있다.
+//시간 복잡도: O(n^3)
+//계산을 편리하게 하기위해 total변수를 써 함수가 최소비용과 함께 자기구간 합도 같이 더해서 반환하도록 하였다.
+//그래서 따로 구간합을 구하지 않아도 되었다.
+
+#include <iostream>
+#include <cstring>
+#include <vector>
+
+using namespace std;
+
+int cache[500][500];
+
+int min_value(int left,int right,vector<int>&cost)
+{
+    if(left==right) //구간의 크기가 1일때
+    {
+        return cost[left];
+    }
+    
+    int &ret=cache[left][right];
+    if(ret!=-1) return ret;
+    
+    ret=2*1e9;  //최악이 12억정도여서 int 자료형을 써도 문제없으나 초기화 할때는 범위 안에 들어가지 않게 
+                //값을 신경써야함.20억으로 맞춤.
+    int total=0;
+    for(int i=left;i<right;i++)
+    {
+        total+=cost[i];
+        ret=min(ret,min_value(left,i,cost)+min_value(i+1,right,cost));
+    }
+    ret+=total+cost[right];  //자기구간 합 + 자기구간 합치기 최소비용
+    return ret;
+}
+
+int main()
+{
+    int t=0;
+    cin>>t;
+    
+    for(int i=0;i<t;i++)
+    {
+        int n=0;
+        cin>>n;
+        vector<int>cost(n);
+        int total=0;
+        for(int j=0;j<n;j++)
+        {
+            cin>>cost[j];
+            total+=cost[j];
+        }
+        
+        memset(cache,-1,sizeof(cache));
+        
+        cout<<min_value(0,n-1,cost)-total<<'\n';//함수가 자기구간 합도 더해서 반환하기 때문에 최종값은 전체구간의 합을 빼줘야 한다.
+    }
+    return 0;
+}
