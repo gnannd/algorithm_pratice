@@ -1,0 +1,48 @@
+//백준 14728 벼락치기
+//전형적인 배낭문제
+//남은 단원의 개수랑 남은 시간에 따라 값이 정해진다.
+//남은 단원의 개수는 순서대로 단원을 풀거기 때문에 현재 차례로 바꿔 다이나믹을 이용하겠다.
+// n이 최대 100 T가 최대 10000으로 최악의 시간은 1,000,000 정도
+// 시간복잡도: O(nT) 시간안에 충분히 풀 수 있다. 
+
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int n=0;
+int study_time[100];
+int score[100];
+int cache[100][10001];
+
+int max_value(int i,int spare_time)
+{
+    if(i==n)
+        return 0;
+    
+    int &ret=cache[i][spare_time];
+    if(ret!=-1) return ret;
+    
+    ret=max_value(i+1,spare_time);
+    if(spare_time>=study_time[i])
+        ret=max(ret,score[i]+max_value(i+1,spare_time-study_time[i]));
+    
+    return ret;
+}
+
+int main()
+{
+    int t=0;
+    cin>>n>>t;
+    
+    for(int i=0;i<n;i++)
+    {
+        cin>>study_time[i]>>score[i];
+    }
+    
+    memset(cache,-1,sizeof(cache));
+    
+    cout<<max_value(0,t);
+    
+    return 0;
+}
