@@ -1,0 +1,68 @@
+//백준 2457 공주님의 정원
+//그리디 
+//3월 1일부터 11월 30 일 까지 꽃이 피워있어야 하는데 최소 꽃 개수 구하라는 문제다.
+//꽃이피는 시기가 시작부분을 채워줄수 있으면서도 제일 늦게 지는 꽃을 계속 선택하면 된다.
+//정당성 증명: 최적해 중에 나의 답을 포함하지 않는게 있다고 가정하자. 제일 늦게 지는 꽃이 아닌 다른 꽃을 선택했다고 하면.
+// 그 꽃으로 모든 시기를 채워줄 수 있었다는 거고 그 꽃 대신에 제일 늦게 지는 꽃을 선택해도 모든 시기를 채워줄 수 있기 때문에.
+//내 답은 무조건 최적해에 들어가게 된다.
+//시간 복잡도: O(nlgn) n이 최대 10만이므로 충분히 시간 안에 풀 수 있다.
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+int month[12]={0,31,28,31,30,31,30,31,31,30,31,30};
+
+int main()
+{
+    int n=0;
+    cin>>n;
+    
+    for(int i=1;i<12;i++) //일자로 통합하기 위한 월별 누적일자
+    {
+        month[i]+=month[i-1];
+    }
+    
+    
+    vector<pair<int,int>>flower;
+    
+    for(int i=0;i<n;i++)
+    {
+        int a,b,c,d;
+        cin>>a>>b>>c>>d;
+        flower.push_back(make_pair(month[a-1]+b,month[c-1]+d));
+    }
+    
+    sort(flower.begin(),flower.end()); //꽃이 피는 시기로 오름차순
+    
+    int begin=month[3-1]+1;
+    int end=month[11-1]+30;
+    
+    int answer=0;
+    
+    int index=0;
+    
+    while(begin<=end)  //O(n)이 걸림.  결국 전체 시간복잡도는 정렬시간이 지배하게 됌.
+    {
+        int max_day=-1;
+        while(index<n and flower[index].first<=begin) //시작 부분을 채워줄 수 있으면서도 제일 늦게 지는 꽃찾기.
+        {
+            max_day=max(max_day,flower[index].second);
+            index+=1;
+        }
+        if(max_day<=begin) //없다면 정답은 0 처리.
+        {
+            answer=0;
+            break;
+        }
+        begin=max_day;
+        answer+=1;
+    }
+    
+    cout<<answer;
+    
+    
+    return 0;
+}
