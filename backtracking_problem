@@ -1,0 +1,61 @@
+//백준 13023 ABCDE
+//관계를 그래프로 연결하였을 때 사이클이 없는 그래프로 모두 연결이 되는지를 묻는 문제인줄 알았지만.
+//예제 몇개를 손으로 풀어 보니 잘못 이해하고 있었다. 사이클이 없는 그래프를 찾는게 아니라 깊이우선탐색을 하였을 때 깊이가 5이상이 되게
+//하는 경로가 있는지 묻는 문제였다.
+//시작노드를 뭐로 하는지 에 따라 경로가 달라지므로 모든 경로를 탐색하면 시간안에 풀지 못할 수 있으나, 문제에서 깊이가 5이상이 되는 경로가 
+//존재하는지 묻는거기 때매 탐색의 깊이는 5를 넘어가지 않고, 게다가 관계의 수가 최대 2000이므로 시간안에 충분히 풀 수 있을 것이라 생각했다.
+//시간 20ms로 충분히 통과하였다. backtracking 문제이므로 시간복잡도 계산은 하지않았다.
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+bool search(vector<int>friend_ship[],vector<int>&visit,int node,int depth)
+{
+    if(depth==5)
+        return true;
+    
+    for(int i=0;i<friend_ship[node].size();i++)
+    {
+        if(visit[friend_ship[node][i]]==0)
+        {
+            visit[friend_ship[node][i]]=1;
+            if(search(friend_ship,visit,friend_ship[node][i],depth+1)) return true;
+            visit[friend_ship[node][i]]=0;
+        }
+    }
+    
+    return false;
+    
+}
+
+int main()
+{
+    int n=0, m=0;
+    cin>>n>>m;
+    
+    vector<int>friend_ship[n];
+    vector<int>visit(n);
+    
+    for(int i=0;i<m;i++)
+    {
+        int a=0,b=0;
+        cin>>a>>b;
+        friend_ship[a].push_back(b);
+        friend_ship[b].push_back(a);
+    }
+    
+    int answer=0;
+    for(int i=0;i<n;i++)
+    {
+        visit[i]=1;
+        if(search(friend_ship,visit,i,1)) 
+        {
+            answer=1;
+            break;
+        }
+        visit[i]=0;
+    }
+    cout<<answer;
+    return 0;
+}
