@@ -1,0 +1,65 @@
+//백준 2661 좋은수열
+//1,2,3 으로 만들어가면서 인전합 동일한 부분수열이 있는지 없으면 계속 추가해 n자리 숫자를 만드는 알고리즘을 짜면됌.
+//제일 작은 수를 출력하라 했으니 1,2,3 작은 순으로 추가 해주면 된다.
+//모든 조합의수가 3의 제곱승으로 증가한다고 생각하겠지만 실제 몇개 만들어보면 조건에 맞는 좋은 수열은 만드는 경우의 수가 많지 않은걸
+//알 수 있다. 그래서 부분수열 확인을 포함해도 충분히 시간안에 풀 수 있다고 생각했다.(n은 1이상 80이하다.)
+//시간은 ≈0ms로 매우 작은 수행시간이 걸렸다다. backtracking 문제이므로 시간복잡도는 계산안했다. 굳이 조건을 따지지 않고 계산하면 O((3^n)*(n^2)) 
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+int n=0;
+
+bool check(vector<int>&seq,int num) //num을 추가 했을 때 인접한 부분수열이 생기는지 안생기는지 확인
+{
+    int i=1;
+    int a=seq.size()-2;
+    int b=seq.size()-1;
+    while(a>=0)
+    {
+        bool same=true;
+        for(int j=0;j<i;j++)
+        {
+            if(seq[a+j]!=seq[b+j])
+            {
+                same=false;
+                break;
+            }    
+        }
+        if(same) return false; 
+        i+=1;
+        a-=2;
+        b-=1;
+    }
+    
+    return true;
+}
+
+bool make_seq(vector<int>&seq)
+{
+    if(seq.size()==n)
+    {
+        for(int i=0;i<n;i++) cout<<seq[i];
+        return true;
+    }
+    
+    for(int i=1;i<=3;i++)
+    {
+        seq.push_back(i);
+        if(check(seq,i))
+        {
+            if(make_seq(seq)) return true;
+        }
+        seq.pop_back();
+    }
+    return false;
+}
+
+int main()
+{
+    cin>>n;
+    vector<int>seq;
+    make_seq(seq);
+    return 0;
+}
