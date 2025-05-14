@@ -1,0 +1,60 @@
+//백준 2981 검문
+//주어진 수들에 대해 나머지를 같게 하는 M을 찾아라는 문제였다.
+//처음에 나머지를 같게 강제시켜 각 수에서 뺀다음 최대공약수를 찾는 식으로 생각해봤다.
+//그러면 나머지에 대한 범위가 너무 커 최악의 경우 시간내에 풀지 못한다는 결론이 나왔다.
+//그다음은 나머지가 같다는 의미에 대해 생각해봤다. 두 수가 나머지가 같기 위해서 M이 두 수의 차이를 넘어서면 안된다는 사실을 알아냈다.
+//두 수의 나머지가 같다는 것은 M이 두 수의 차이를 나누었을 때 딱 맞아 떨어진다는 뜻이다. 
+//-> 즉 여러 수들로 생각했을 때 각 숫자들의 차이에 대해 최대공약수를 구하면 된다.
+// 그리고 최대공약수의 약수들을 출력하는 것(공약수들의 집합은 결국 최대공약수의 약수들의 집합임)으로 문제를 해결했다.
+//시간 복잡도는 O(n^2+nlgn(sqrt(ans)))로 sqrt(ans)이부분이 최악의 경우 십만안되는 수여서 시간안에 충분히 풀 수 있다.
+//추가로 최대공약수의 약수들을 구할 때 뮨제에서 크기순으로 출력하라 해서 1부터 ans 까지 출력하였으나 sqrt로 풀지않아
+//시간초과가 걸렸고 sqrt를 이용해 구한다음 크기 순으로 정렬후 차례대로 출력하였다.(sqrt로 안풀면 최악의 경우 10억이 나옴) 
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+int gcd(int a,int b)
+{
+    if(b==0) return a;
+    return gcd(b,a%b);
+}
+int main()
+{
+    int n=0;
+    cin>>n;
+    vector<int>num(n);
+    for(int i=0;i<n;i++)
+        cin>>num[i];
+    
+    int ans=0;
+    for(int i=0;i<n;i++)
+    {
+        for(int j=i+1;j<n;j++)
+        {
+            ans=gcd(ans,abs(num[i]-num[j]));
+        }
+    }
+    
+    //숫자 범위로 인해 코드가 깔끔하지 못하게 짤 수 밖에 없었다.
+    vector<int>answer;
+    for(int i=2;i<=sqrt(ans);i++)
+    {
+        if(ans%i==0)
+        {
+            answer.push_back(i);
+            if(i!=(ans/i))
+            answer.push_back(ans/i);
+        }
+            
+    }
+    answer.push_back(ans);
+    
+    sort(answer.begin(),answer.end());
+    for(int i=0;i<answer.size();i++)
+        cout<<answer[i]<<' ';
+    
+    return 0;
+}
