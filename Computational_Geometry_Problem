@@ -1,0 +1,64 @@
+//백준 2477 참외밭
+//넓이 구하는 문제  입력이 6개여서 외적으로 넓이 구하기로 생각했다.
+// 각 꼭짓점의 좌표로 전환하여 저장한다.
+// 그 후 나올 수 있는 도형의 좌표공간 밖의 점을 하나 찍어 그 점과 두개의 인접한 각 꼭짓점의 좌표들을 순회하면서 외적값을 구하였다.
+//시간복잡도는 상수시간에 풀 수 있다.
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+struct vector2{
+    long long x,y;
+    vector2(long long x1=0,long long y1=0)
+    {
+        x=x1,y=y1;
+    }
+    long long cross(const vector2& point)
+    {
+        return x*point.y - y*point.x;
+    }
+};
+
+int main()
+{
+    int cnt; // 참외개수
+    cin>>cnt;
+    vector<vector2>point;
+    
+    int y=0,x=0;
+    int pos=0;               //현재 방향. 
+    for(int i=0;i<6;i++)  //모든 꼭짓점 좌표 저장.
+    {
+        int dir,dis; //방향, 길이
+        cin>>dir>>dis;
+        if(dir!=pos)
+            point.push_back(vector2(x,y));
+        
+        if(dir==1) // 동쪽
+        {
+            x+=dis;
+        }
+        else if(dir==2) // 서쪽
+        {
+            x-=dis;
+        }
+        else if(dir==3)
+        {
+            y-=dis;
+        }
+        else
+        {
+            y+=dis;
+        }
+    }
+    long long max_x=1000,max_y=1000;   //외적으로 풀기 위한 도형의 바깥점 아무거나. 다만, 문제에서 나올 수 있는 범위 밖으로 선정해야한다.
+    long long sum=0;
+    for(int i=0;i<point.size();i++)
+    {
+        sum+=point[i].cross(point[(i+1)%point.size()]);
+    }
+    cout<<(abs(sum)/2)*cnt;
+    return 0;
+}
