@@ -13,6 +13,7 @@
 ++정답이 int 변수 범위 안이라고 표기 되어 있어 int 자료형 사용하는데 문제가 없다.
 
 시간복잡도는 대략  입력 상태의 수 N * 시행횟수(최대 100*100) 충분히 시간안에 풀 수 있을 것이다. 
+실제로 거의 0ms로 수행되었다.
 */
 #include <iostream>
 #include <vector>
@@ -49,12 +50,13 @@ int main()
 {
     for(int i=0;i<101;i++)
         state[i][100]=-1;  //메모이제이션을 위한 초기화 
-    
+    //배열에다 정보를 담아서 보낼거기 때문에 안쓰는 100번째 인덱스를 이용 완성품이 중간부품이 될리는 없기에
+
     int n=0,m=0;
     cin>>n>>m;
     
     
-    vector<vector<int>>need_part(n+1,vector<int>(n,0));
+    vector<vector<int>>need_part(n+1,vector<int>(n,0));// 필요한 부품정보 저장배열
     vector<int>check(n+1,0); // 기본부품 체크
     for(int i=0;i<m;i++)
     {
