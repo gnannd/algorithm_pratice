@@ -1,0 +1,121 @@
+/*
+백준16938
+문제를 고르는 방법의 수를 구하는 문제로
+문제의 난이도는 정수로 수치화 되어 있다.
+N개의 문제가 주어지며, 다음과 같은 조건들이 있다.-------
+1.두 문제 이상 문제를 골라야 하며,
+2.합이 L보다 크거나 같고 R 보다 작거나 같아야야 한다.
+3.큰 정수와 작은 정수의 차이가 X보다 크거나 같아야 한다.
+1<= N <= 15
+
+
+순서가 중요하지 않으므로 조합으로 생각 해봐도 된다.
+처음에 모든 경우의 수를 하나하나 조합해보는 브루트포스를  생각해 봤다.
+하지만 최악의 시간의 경우 대략 O(~15!)이 나오기 때문에 좀 더 생각해 보았다.
+
+다이나믹은 그 전의 선택의 정보들을 필요로 하기 때문에 작은 문제로 나누지 못해 사용할 수 없다는 걸 금방 깨달았다.
+결국 생각한건 비트 마스킹을 이용하는 것이다. 선택했다는 정보를 비트 단위로 쪼개 1로 생각하여 모든
+조합들을 고려하여 풀면 2^15으로 시간안에 충분히 풀 수 있을 것 같다.
+더하여 조건에 맞는지 확인하는 작업 또한 비트마스킹을 이용하면 배열을 이용하는 것 보다 적은 시간 내에 수행 할 수 있다.
+
+사실 경우의 수를 따지는 걸로 보면 배열로 이용하든 비트마스킹을 이용하든 똑같지만 
+배열은 재귀 함수 호출, 추가, 삭제 , 조건 계산, 반복문 수행에 큰 차이가 있다. 비트마스킹 같은 경우 이 왠만한 모든 작업을 O(1)에 할 수 있기 때문이다. 
+여기서는 비트마스킹이여도 조건 계산 작업의 경우 O(N)이 걸렸다.
+
+시간 복잡도는 2^15 * 3*N = O(2^N * N) 이다. N이 15이하 이므로 시간안에 수행가능 하다.
+실제로 56ms 로 크지 않는 시간으로 수행 되었다.
+회고)
+코드는 어렵지 않게 짰는데 결과가 제대로 안나와 찾아보니
+비교연산이 비트연산보다 우선순위가 높다는 걸 간과했다.
+괄호를 묶어주어 해결했고 또한 pow()을 비트연산자 &랑 같이 쓸려면 반환값을 명시적으로 int로 바꿔줘야 했다.
+이유는 pow는 반환값이 float가 나올 수 있고 비트연산자는 정수끼리의 연산이기 때문이었다.
+다음부터 주의해야 겠다.
+*/
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int N,L,R,X;
+int problem_score[15]={0};
+
+bool Cond1(int i)
+{
+    int count=0;
+    while(i>0)
+    {
+        if(i%2==1)
+            count+=1;
+        i/=2;
+    }
+    return count > 1 ? true : false;
+}
+
+bool Cond2(int i)
+{
+    int total_score=0;
+
+    for(int j=0;j<N;j++)
+    {
+     
+        if( (i& (int)pow(2,j)) !=0)
+        {
+            total_score+=problem_score[j];
+        }
+        
+        
+    }
+
+    if(total_score<L or total_score>R) return false;
+    
+    return true; 
+}
+
+bool Cond3(int i)
+{
+    int max_score=-1;
+    int min_score=1e9;
+    for(int j=0;j<N;j++)
+    {
+        if( (i& (int)pow(2,j)) !=0)
+        {
+            if(max_score < problem_score[j])
+                max_score= problem_score[j];
+            if(min_score > problem_score[j])
+                min_score= problem_score[j];
+        }
+    }
+    
+    return max_score-min_score>=X ? true : false ; 
+}
+
+int main()
+{
+    
+    cin>>N>>L>>R>>X;
+    
+    for(int i=0;i<N;i++)
+        cin>>problem_score[i];
+    
+    int cnt = 0; //N이 크지 않아 int범위 내의 결과값이 나올 것으로 생각했다.
+    
+    for(int i=1;i<pow(2,N);i++) //모든 조합을 찾아낸다.
+    {
+        //두문제 이상인지.
+        if(!Cond1(i))
+            continue;
+        
+        //합이 L보다 크거나 같고 R보다 작거나 같은지.
+        if(!Cond2(i))
+            continue;
+            
+        //큰것과 작은것의 차이가 X보다 크거나 같은지.
+        if(!Cond3(i))
+            continue;
+
+        cnt+=1;
+    }
+    
+    cout<<cnt;
+    
+    return 0;
+}
