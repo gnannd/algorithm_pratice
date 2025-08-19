@@ -1,0 +1,148 @@
+/*
+백준 17135
+궁수의 위치에 따른 시뮬레이션 후 -> 제거할 수 있는 최대 적의 수를 찾는 문제 
+결국 모든 궁수의 위치를 조합해본후 각 경우마다 시뮬레이션을 통해 최대 적의 수를 찾으면 된다.
+N*M 격자판에서 진행 (N,M<=15) 궁수는 3명만 배치 할 수 있다.
+
+모든 조합을 고려하는 방식 브루트 포스가 먼저 떠올랐다.
+모든조합을 고려하는건 3중 for문을 통해 쉽게 구현할 수 있었다. O(nC3)
+각 경우에 대해 시뮬레이션 구현은 간단하면서 번거러웠다. 각 궁수마다 공격할 적의 위치를 모든 적을 순환하면서 찾아내 
+하나하나 없애는 방식으로 구현했다. O(N*N*M*3)
+시간복잡도 : O(NC3 * N^2 * M) 최악의 경우를 대충 생각하면 대략 백만 정도
+N,M이 크지않아 시간안에 수행 될 것으로 보았고 실제로도 16ms 로 충분히 시간안에 풀 수 있었다.
+*/
+
+#include <iostream>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+int N,M,D;
+
+int Simulate_Game(vector<vector<int>>game)
+{
+    int kill=0;
+    vector<int>arrow;
+    
+    for(int i=0;i<M;i++)  //시뮬동안은 궁수의 위치는 고정이기에. 미리 찾아놈 N,i
+        if(game[N][i]==1)
+            arrow.push_back(i);
+    
+    
+    while(1)
+    {
+        //매시행
+        vector<vector<int>>visit(N,vector<int>(M,0)); // 중복처리
+        vector<pair<int,int>>remove_actor; //동시에 없앨 후보들
+        for(int i=0;i<3;i++) // 궁수 3명에 대해서
+        {
+            int min_distance=100; //100은 나올 수 없는 값
+            pair<int,int>p = make_pair(3,1);
+            //공격하는 적 위치 찾기.
+            for(int j=0;j<N;j++)
+            {
+                for(int r=0;r<M;r++)
+                {
+                    if(game[j][r]==1) //적에 대해
+                    {
+                        int dis=abs(j-N)+abs(arrow[i]-r);
+                        if(min_distance >= dis and dis<=D) 
+                        {
+                            if(min_distance==dis)
+                            {
+                                if(p.second>r)
+                                {
+                                    p.first=j;
+                                    p.second=r;
+                                }
+                                
+                            }
+                            else
+                            {
+                                p.first=j;
+                                p.second=r;
+                            }
+                            min_distance=dis;
+                        }
+                    }
+                }
+            }
+            if(min_distance!=100 and visit[p.first][p.second]==0)
+            {
+                remove_actor.push_back(p);
+                //cout<<p.first<<' '<<p.second<<' '<<min_distance<<'\n';
+                visit[p.first][p.second]=1;
+            }
+            
+        }
+        for(int i=0;i<remove_actor.size();i++)
+        {
+            game[remove_actor[i].first][remove_actor[i].second]=0;
+            kill+=1;
+        }
+        //종료조건(적이 없는경우)
+        bool is_null=true;
+        for(int i=N-1;i>=0;i--)
+        {
+            for(int j=0;j<M;j++)
+            {
+                if(game[i][j]==1)
+                {
+                    if(i!=N-1)
+                    {
+                        is_null=false;
+                        game[i+1][j]=game[i][j];
+                    }
+                    game[i][j]=0;
+                    
+                }
+            }
+        }
+        if(is_null)
+            break;
+    }
+    
+    return kill;
+}
+
+int main()
+{
+    
+    cin>>N>>M>>D;
+    
+    vector<vector<int>>map_ip(N+1,vector<int>(M,0));
+    
+    for(int i=0;i<N;i++)
+    {
+        for(int j=0;j<M;j++)
+        {
+            cin>>map_ip[i][j];
+        }
+    }
+    
+    int answer=-1;
+    
+    for(int i=0;i<M;i++)  //3중 for 문으로 모든 궁수위치 조합을 만들어낸다.
+    {
+        map_ip[N][i]=1;
+        for(int j=i+1;j<M;j++)
+        {
+            map_ip[N][j]=1;
+            for(int r=j+1;r<M;r++)
+            {
+                map_ip[N][r]=1;
+                
+                answer=max(answer,Simulate_Game(map_ip));
+                
+                map_ip[N][r]=0;
+            }
+            map_ip[N][j]=0;
+        }
+        map_ip[N][i]=0;
+    }
+    
+    cout<<answer;
+    
+    return 0;
+}
