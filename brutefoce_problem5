@@ -1,0 +1,82 @@
+/*
+백준 12919
+두 문자열이 주어지고 하나의 문자열이 다른 문자열로 변환이 되는지 확인하는 문제
+매 선택마다 2가지를 할 수 있다. 1. A를 추가하기 2.B를 추가하고 뒤집기.
+주어지는 두문자열의 길이는 50이하이다.
+이것만 보면 2가지의 기능을 구현한후 
+모든 조합을 다해보는 브루트 포스를 생각해 볼 수 있다. 
+그러면 매 선택에 두가지의 선택이 있으니 최악의 경우 시간복잡도가 2^50 이 된다.
+시간안에 풀기는 힘드므로 다른 방법을 생각해 봐야 했다.
+
+다이나믹을 이용한 메모이제이션은 이전의 선택의 정보가 필요하기에  힘들어보였고
+그나마 생각한건 매선택 2가지를 선택지를 줄이게 하는 방법이다.
+
+문자열을 타켓문자열로 변환하는게 아니라
+타켓 문자열 을 원래 문자열로 되돌려 놓는걸로 생각하면
+4가지 경우가 있다.
+처음 문자랑 끝문자만 보면 선택지에 제한이 있다. 
+A - B  : 아무 선택지도 없다. 원래 문자열로 되돌릴 수 없다.
+B - A  : 2가지 선택 모두 할 수 있다.
+A - A  : 1번째 선택지만 할 수 있다.
+B - B  : 2번째 선택지만 할 수 있다.
+
+그리고 이게 B - A 만 계속 나오는 경우는 없기엔 아무리 많이 따져봐야 대충 재귀가 2^25최대여서 시간 내에 풀 수 있을 것 같다.
+
+*/
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+string delete_A(string t)
+{
+    t.pop_back();
+    return t;
+}
+
+string delete_B(string t)
+{
+    string temp=string("");
+    for(int i=t.size()-1;i>0;i--)
+        temp+=t[i];
+    
+    return temp;
+}
+
+bool checking(string s,string t)
+{
+    
+    if(s.size() == t.size())
+    {
+        return (s==t?true:false);
+    }
+    
+    if(t[0]=='B' and t[t.size()-1]=='A')
+    {
+        return checking(s,delete_B(t)) || checking(s,delete_A(t));
+    }
+    else if(t[0]=='A' and t[t.size()-1]=='A')
+    {
+        return checking(s,delete_A(t));
+    }
+    else if(t[0]=='B' and t[t.size()-1]=='B')
+    {
+        return checking(s,delete_B(t));
+    }
+    else
+    {
+        return false;
+    }
+    
+}
+
+int main()
+{
+    string s,t;
+    cin>>s>>t;
+    
+    cout<<(checking(s,t)?1:0);
+    
+    return 0;
+}
