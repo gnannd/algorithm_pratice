@@ -1,0 +1,42 @@
+/* 백준 24460
+전형적인 분할 정복알고리즘(lgn * n)을 사용하여 푸는 문제이다.
+비슷한 문제를 풀어 봤고 계속 다 분할 한다음 조합 할 때 규칙에 맞게 두번째로 낮은 값을 선택하면서 마지막에 선택된 값을 출력 하면 된다.
+시간 복잡도 도 O(lgn* n) 이므로 충분히 시간안에 풀어진다.(N은 약 1000 이하) 
+값은 int 자료값을 넘지않는다. 자료형은 신경 쓰지않아도 된다.
+실제로 시간내에 수행 되었다. 한양대에 출제된 문제 치고는 너무 쉬움..
+기본문제인가..
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int N;
+int GetNum(vector<vector<int>>&table,int size,int x,int y)
+{
+    if(size==1)
+    {
+        return table[x][y];
+    }
+    vector<int>order;
+    order.push_back(GetNum(table,size/2,x,y));
+    order.push_back(GetNum(table,size/2,x+size/2,y));
+    order.push_back(GetNum(table,size/2,x,y+size/2));
+    order.push_back(GetNum(table,size/2,x+size/2,y+size/2));
+    sort(order.begin(),order.end(),less<int>());//오림차순
+    return order[1]; //두번째로 낮은값 출력.
+}
+int main()
+{
+    cin>>N;
+    vector<vector<int>>table(N,vector<int>(N));
+    for(int i=0;i<N;i++)
+    {
+        for(int j=0;j<N;j++)
+        {
+            cin>>table[i][j];
+        }
+    }
+    
+    cout<<GetNum(table,N,0,0);
+    return 0;
+}
