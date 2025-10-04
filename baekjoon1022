@@ -1,0 +1,90 @@
+/*백준 1022
+보드에 숫자를 반시계방향으로 숫자순서대로 채우고 어느 영역을 출력하는것이다. 
+처음에 생각한건 나올수있는 최대 최소 보드를 다 만들고 나서 그냥 그영역을 출력하자 이런 단순한 생각을 했는데
+최대가 5000*5000 인 보드를 다 만들 수 없고 저장 또한 할 수 없다. 메모리 , 시간 문제 
+그래서 이건 규칙이 직관적으로 보여 0,0 이랑 떨어져 있는 x,y 구하는 수학함수를 구현 하여 풀어야 겠다고 생각했다.
+왜냐면 보드 영역은 5000*5000 이지만 출력 해야하는 최대 영역은 50*5 이다.
+시간 내에 충분히 수행가능 하고 메모리 또한 충분해진다.
+밑에 함수가 수학 함수를 구현한것이고, 시간복잡도: 최악의 경우O(50*5) -> 좌표에 대한 값을 구하는 연산은 거의 O(1)로 해결 되기 때문이다.
+
+출력형식을 받기위해 vector 이차원을 이용해 저장 후 출력하는 형식을 선택했다.
+공백 출력 처리를 라이브러리 함수를 이용해 처리했는데, 직접 자릿수에 대해 처리해도 되지만, 여러 함수를 써보는 것도 
+경험이 될거라 생각해 만들어진 함수를 이용해 처리했다.
+
+실제로 거의 0ms로 빠른 시간내에 수행되었다.
+*/
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
+int GetNum(int y,int x){
+    int num=0;
+    if(x==0 and y==0)
+        return 1;
+    if(abs(y)-abs(x)>=0)
+    {
+        num=pow((1+2*(abs(y)-1)),2);
+        if(y>=0)
+        {
+            num+=7*abs(y);
+            num+=x;
+        }
+        else{
+            num+=3*abs(y);
+            num-=x;
+        }
+    }
+    else{
+        num=pow((1+2*(abs(x)-1)),2);
+        if(x>=0)
+        {
+            num+=abs(x);
+            num-=y;
+        }
+        else{
+            num+=5*abs(x);
+            num+=y;
+        }
+    }
+    return num;
+}
+
+
+int main()
+{
+    int r1,c1,r2,c2;
+        
+    cin>>r1>>c1>>r2>>c2;
+    vector<vector<int>>board(r2-r1+1,vector<int>(c2-c1+1));
+    int max1=-1;
+    for(int i=r1;i<=r2;i++)
+    {
+        for(int j=c1;j<=c2;j++)
+        {
+            board[i-r1][j-c1]=GetNum(i,j);
+            max1=max(max1,board[i-r1][j-c1]);
+        }
+    }
+    
+    int cnt=0; //나올 수 있는 최대값의 자릿수
+    while(max1!=0)
+    {
+        max1/=10;
+        cnt+=1;
+    }
+    
+    for(int i=0;i<board.size();i++)
+    {
+        for(int j=0;j<board[i].size();j++)
+        {
+            cout<<setw(cnt)<<board[i][j]<<' ';
+        }
+        cout<<'\n';
+    }
+    
+    return 0;
+}
