@@ -1,0 +1,92 @@
+/*백준 1082 방 번호
+방번호로 만들 수 있는 최대값을 구하는 문제이다.
+방번호를 만들 수 있는 숫자는 살 수 있다. 다만 금액이 제한 적이다.
+N개의(0부터 N-1) 숫자를 살 수 있고, 각 번호의 값은 입력으로 주어진다.
+가지고 있는 금액 M도 주어진다 (N은 10이하, M은 50이하, 각 값도 50하 ++ 모두 자연수임.)
+맨처음에 앞자리에 제일 큰 숫자가 오는게 좋지 않나 라고 생각했지만 금액이 한정적이고 
+또 많은 숫자를 사면 살수록 더 큰숫자를 만들 수 있기에 처음에 그리디로 풀어보는 생각은 접어두었다.
+그리고 중복구매가 가능하다는 점을 보아 M이 50 이하 이기때문에 최대로 사는 경우 50개를 사는 경우도 있어
+모든 선택을 고려해보는 브루트포스로 푸는것도 쉽지 않아 보인다.
+
+중복 되는 값에 대한 연산을 한번만 하게 하여 연산량을 줄일 수 있는 다이나믹 알고리즘을 
+생각해 볼 수 있는데 일단 입력의 상태를 생각해 보면,
+M현재 남아있는 금액만 필요로 한다. 그리고 탐색을 0~n-1 즉, N개  -> 시간복잡도는 M*N이 될것이고
+충분히 시간내에 풀 수 있게 된다.
+여기서 중요한 점은 int를 자료형을 선택해서는 안된다. int 받기엔 10의 50승 이하의 값이 최악의 경우 나올 수 
+있기 때문에 이것은 long long으로 처리할 수 없는 큰값이 되어비린다. ->문자열로 받아 사전순 값으로 처리하면
+우리가 원하는 값을 얻을 수 있을 것이다.
+문자열 처리하는 드는 연산 O(s) 근데 s의 크기가 최대 50까지 고려하면
+시간복잡도: O(M*N*s) ->시간내에 충분히 수행가능하다. 50*10*50 = 25000
+실제로 거의 0ms에 가깝게 수행되었다.
+*/
+
+#include <iostream>
+#include <string.h>
+#include <vector>
+using namespace std;
+
+bool operator<(const string& a1, const string &a2)
+{
+    if(a1.size()!=a2.size())
+        return (a2.size()>a1.size())?true:false;
+    else
+    {
+        for(int i=0;i<a1.size();i++)
+        {
+            if(a1[i]<a2[i])
+                return true;
+            else if(a1[i]>a2[i])
+                return false;
+        }
+        return true;
+    }
+}
+
+
+string GetNum(vector<string>&memo,vector<int>&price,int M)
+{
+    if(M==0)
+        return "";
+    string &ret=memo[M];
+    if(ret!="-1") return ret;
+    ret="";
+    for(int i=0;i<price.size();i++)
+    {
+        if(M>=price[i])
+        {
+            string str=to_string(i)+GetNum(memo,price,M-price[i]);
+            if(ret<str)
+                ret=str;
+        }
+    }
+    return ret;
+}
+
+int main()
+{
+
+
+    int N;
+    cin>>N;
+    vector<int>price(N);
+    
+    for(int i=0;i<N;i++)
+        cin>>price[i];
+    int M;
+    cin>>M;
+    vector<string>memo(M,"-1");
+    string answer="";
+    if(M>=price[0])
+        answer="0";    
+    for(int i=1;i<N;i++) //정답이 0인 겨우를 예외처리 하기 위해서.
+    {
+        if(M>=price[i])
+        {
+            string str=to_string(i)+GetNum(memo,price,M-price[i]);
+            if(answer<str)
+                answer=str;
+        }
+    }
+    cout<<answer;
+    return 0;
+}
