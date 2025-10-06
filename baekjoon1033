@@ -1,0 +1,159 @@
+/*백준1033 칵테일 
+각 재료 쌍의 비율이 주어지고 최소 질량합 으로 칵테일을 만들어라 그리고 각 재료의 양을 정수값으로 출력하는 문제이다.
+n개의 재료가 있고 비율을 나타내는 입력값은 p,q로 주어진다.(n은 10이하 자연수, p와 q는 9이하 자연수 이다.)
+그리고 칵테일에 만드는데 N개의 재료가 다들어가면 무조건 만들 수 있다.
+
+일단 그래프 상으로 생각해보면 칵테일을 만들 수 있고 N개 재료가 들어간다고 했으니까 모든 재료는 비율로 이어져 있을 것이다.
+그래서 하나의 재료를 1로 두고 거기에 비율에 따라 나머지를 비율 값으로 표현 한다음 
+모든 재료가 정수가 되도록 최소공배수를 구해 모든 재료를 정수로 만들면 되지 않을까 라고 처음에 생각했다.
+
+시간복잡도: O(N*100)  이렇게 표현한 이유는 기약분수 구하는 연산이나 최소공배수 구하는 연산이 아무리 못해도
+N*100을 넘지 않기 때문이다. 어림잡아 넣었다. O(N)이라 적지 않고 O(N*100)하는 이유는 N이 10 이하라 이걸로만 표현하기엔 gap이 있다고 생각해
+이렇게 표현하였다.
+실제로 0ms 로 수행되었다.
+
+
+++ 그리고 실수 했던게 3 수의 기약분수에 대해 분모에 대한 최소공배수를 구한 후,
+최소 공배수로 각값을 곱하면 세 수를 공통 수로 나눌 수 있는 값이 없기에 그대로 출력 했는데(문제에서 최소 질량 합을 구하라고 함.)
+생각해보니 분자때문에 최소 공배수를 곱해다고 하더라도 세 수를 나눌 수 있는 수가 
+존재한다는걸 생각하지 못했다. 그 예외 케이스 때문에 시간이 오래걸렸다.
+
+*/ 
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+    int N;
+    cin>>N;
+    vector<vector<vector<int>>>make(N);
+    for(int i=0;i<N-1;i++)
+    {
+        int mt1,mt2,p,q;
+        cin>>mt1>>mt2>>p>>q;
+        vector<int>use(3);
+        use[0]=mt2,use[1]=p,use[2]=q;  // mt1 * q/p = mt2
+        make[mt1].push_back(use);
+        use[0]=mt1,use[1]=q,use[2]=p;
+        make[mt2].push_back(use);
+    }
+    vector<int>que;
+    vector<int>visit(N,0);
+    vector<vector<long long>>ratio(N,vector<long long>(2,0));
+    visit[0]=1;
+    ratio[0][0]=1,ratio[0][1]=1;   //ratio[0][1]/ratio[0][0]
+    que.push_back(0);
+    //0번 재료 양을 1로두고 나머지 재료의 양을 비율로 표현하기.
+    while(que.size())
+    {
+        int num=que[que.size()-1];
+        que.pop_back();
+        for(int i=0;i<make[num].size();i++)
+        {
+            if(visit[make[num][i][0]]==0)
+            {
+                visit[make[num][i][0]]=1;
+                que.push_back(make[num][i][0]);
+                ratio[make[num][i][0]][0]=ratio[num][0]*make[num][i][1];
+                ratio[make[num][i][0]][1]=ratio[num][1]*make[num][i][2];
+            }
+        }
+    }
+    //기약분수 만들기  N이 10이하고 p,q,과 9이하 였기 때문에 아무리 마니 돌려봐야 연산량 10*30을 넘지 못함.
+    //시간 문제는 신경안써도 됌.
+    for(int i=0;i<ratio.size();i++)
+    {
+        int num=9;
+        while(num>=2)
+        {
+            if((ratio[i][0]%num==0) and (ratio[i][1]%num==0))
+            {
+                ratio[i][0]/=num;
+                ratio[i][1]/=num;
+            }
+            else{
+                num-=1;
+            }
+        }
+    }
+    //최소공배수를 구해 모든 값을 정수로 만들기.
+    long long min1=1;
+    int num=9;
+    
+    vector<long long>sav;
+    for(int i=0;i<N;i++)
+    {
+        if(ratio[i][0]!=1)
+            sav.push_back(ratio[i][0]);
+    }
+    while(num>=2)
+    {
+        int k=sav.size();
+        for(int i=0;i<sav.size();i++)
+        {
+            if(sav[i]%num!=0)
+            {
+                k-=1;
+            }
+        }
+        if(k>=2)
+        {
+            for(int i=0;i<sav.size();i++)
+            {
+                if(sav[i]%num==0)
+                    sav[i]/=num;
+            }
+            min1*=num;
+        }
+        else
+        {
+            num-=1;
+        }
+    }
+    /*
+    for(int i=0;i<ratio.size();i++)
+    {
+        cout<<ratio[i][1]<<'/'<<ratio[i][0]<<' ';
+    }
+    cout<<'\n';
+    */
+    for(int i=0;i<sav.size();i++)
+        min1*=sav[i];
+    
+    
+    
+    vector<int>answer(N);
+    for(int i=0;i<N;i++)
+    {
+        answer[i]=ratio[i][1]*(min1/ratio[i][0]);    
+    }
+    
+    num=9;
+    while(num>=2)
+    {
+        bool ok=true;
+        for(int i=0;i<N;i++)
+        {
+            if(answer[i]%num!=0)
+            {
+                ok=false;
+                break;
+            }
+        }
+        if(ok)
+        {
+            for(int i=0;i<N;i++)
+                answer[i]/=num;
+        }
+        else
+        {
+            num-=1;
+        }
+    }
+    for(int i=0;i<N;i++)
+        cout<<answer[i]<<' ';
+    return 0;
+}
