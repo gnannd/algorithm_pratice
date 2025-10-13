@@ -1,0 +1,56 @@
+/*백준 14786
+Ax+Bsin(x)=C를 만좋하는 x를 찾는 문제이다.
+A,B,C는 0이상 10만 이하의 정수이다.  A<=B
+상대,절대 오차는 10의 -9승 까지 허용한다. 
+이 문제는 수치해석에서 다루는 f(x)=0 rooting problem구하는 문제이다.
+정확한 값을 보장해야 하기 때문에 제일 기본적인 이분탐색 bisection 알고리즘을 쓰겠다.
+
+Ax+Bsin(x)-C=0이라고 두고. f(x)=Ax+Bsin(x)-C=0 이 되게하는 x를 구하면 되는데,
+bisection을 구현할 때 중요한것은 초기값을 잘 설정해야 한다.
+평균값 정리에 의해 초기값 구간 r1,r2 가 f(r1)f(r2)<=0을 만족해야 한다.
+시행할 때마다 lg(n)만큼 줄어들기 때문에 시간초과는 신경 쓰지 않아도 될것이다. 
+
+참고로 bisection의 가장 큰 장점은 값을 무조건 보장하기에 내가 구하려는 근사값 Pn,pn-1의 차이가
+오차 이하면 출력하는 식으로 하였다.
+
+x가 -10만이면 어떤 A,B,C 가 오든 f(x)는 음수가 되게 된다.
+x가 20만이면 어떤 A,B,C가 오든 f(x)는 양수가 된다.
+초기값을 r1=-10만, r2=20만으로 잡겠다.
+
+실제로 0ms로 통과되었다.
+*/
+
+
+
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int A,B,C;
+
+double f(double x)
+{
+    return A*x+B*sin(x)-C;
+}
+
+int main()
+{
+    cout.precision(10);
+    cin>>A>>B>>C;
+    double r1=-100000,r2=200000;
+    while(abs(r2-r1)>1e-9)
+    {
+        double temp=f((r1+r2)/2);
+
+        if(temp*f(r1)>=0)
+        {
+            r1=(r1+r2)/2;    
+        }
+        else
+            r2=(r1+r2)/2;
+    }
+    
+    cout<<(r2+r1)/2;
+    return 0;
+}
+
