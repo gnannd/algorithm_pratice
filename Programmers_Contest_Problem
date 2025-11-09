@@ -1,0 +1,95 @@
+/*2025 프로그래머스 코드챌린지 2차예선 [봉인된 주문]
+11개이하의 만들 수 있는 모든 문자열을 사전순으로 나열 한다음 조건에 맞는 문자열 몇개를 삭제한 후 
+n번째 문자열을 찾는 문제.
+n이 10^15승이고, 삭제할 문자열 개수가 30만이하. 
+
+일단 n이 엄청 커 일일히 다찾아보는걸로는 당연히 풀 수 없다.
+하지만 이문제는 간단한 트릭이 있는데 사전순으로 나열한다는 것은 일일히 다확인 하지 않아도 
+몇번째가 어떤 문자열인지 문자열의 크기를 순회하면 쉽게 알 수 있다는 점이다.
+
+알고리즘을 다음과 같이 생각하여 구성했다.
+1. 문자열의 크기에 따라 만들 수 있는 문자열개수가 몇개 있는지를 memo에 저장. 그리고 그 크기까지 나오게 되는 
+문자열이 몇개인지 cnt에 저장.
+2. 삭제되는 문자열의 순서를 모두 구한 후 정렬하여 삭제전 기준으로 실제 우리가 구해야 하는 문자열은 몇번째 인지 알아낸다.
+n+삭제되는 문자열로 인해 뒤로 밀려지는 개수
+3. 실제 구해야하는 문자열을 구하면 된다.
+시간복잡도: O(bans의 크기 30만 * 문자열의크기(최대 11)) 시간내에 충분히 풀 수 있다.
+*/
+
+#include <string>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+string solution(long long n, vector<string> bans) {
+    
+    string answer = "";
+    long long memo[11]; //크기마다 나올 수 있는 문자열의 개수
+    long long cnt[11]; // 그 크기까지 나온 문자열의 개수
+    cnt[0]=0;
+    memo[0]=0;
+    for(int i=1;i<11;i++)
+    {
+        memo[i]=pow(26,i);
+        cnt[i]=cnt[i-1]+memo[i];
+    }
+    vector<long long>ban_order(bans.size());
+    for(int i=0;i<bans.size();i++) //삭제할 문자열이 몇번째 문자열인지.
+    {
+        long long order=0;
+        order+=cnt[bans[i].size()-1];
+        
+        
+        for(int j=0;j<bans[i].size()-1;j++)
+        {
+            order+=((int)bans[i][j]-'a')*memo[bans[i].size()-(j+1)];
+        }
+        
+        order+=(int)bans[i][bans[i].size()-1]-'a'+1; //마지막은 알파벳순에 따라 값을 부여.
+        ban_order[i]=order;
+    }
+    sort(ban_order.begin(),ban_order.end(),less<long long>());
+    
+    
+    for(int i=0;i<ban_order.size();i++) //n값 업데이트.
+    {
+        if(ban_order[i]<=n)
+        {
+            n+=1;
+        }
+        else
+            break;
+    }
+    
+    
+    int n_size=1;
+    for(int i=10;i>0;i--) //크기가 몇인 문자열인지 cnt로 먼저 확인.
+    {
+        if(n>cnt[i])
+        {
+            n_size=i+1;
+            n-=cnt[i];
+            break;
+        }
+    }
+    
+    for(int i=n_size-1;i>0;i--)
+    {
+        for(int j=25;j>=0;j--)
+        {
+            if(n>memo[i]*j)
+            {
+                n-=memo[i]*j;
+                answer+=char('a'+j);
+                break;
+            }
+        }
+    }
+    
+    answer+=char('a'+n-1);
+    
+    
+    return answer;
+}
