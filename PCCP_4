@@ -1,0 +1,136 @@
+/* PCCP 수레 움직이기
+격자판이 주어지고 두개의 출발점이랑 두개의 도착점이 주어진다.
+각 점을 조건에 맞게 상하좌우 움직여 각 점의 도착점으로 보내면 되는데 최소한의 이동 횟수로 보내야 한다.
+그때의 횟수값을 리턴하면 된다. 도착점으로 보낼 수 없으면 리턴 0을 하면 된다.
+브루트 포스로 풀면 된다. 격자판의 크기가 4*4 이하고 방문했던 지점은 갈 수없는 조건들도 있어
+충분히 빠른 시간내에 풀 수 있다는걸 금방 알 수 있다.
+시간복잡도: O(16*15(두점의 가능한 상태 경우의 수) *16(탐색 횟수))
+
+*/
+
+#include <string>
+#include <vector>
+
+using namespace std;
+    
+int dx[4]={0,-1,1,0};
+int dy[4]={1,0,0,-1};
+    
+int MinPath(vector<vector<int>>&maze,int x1,int y1,int x2,int y2,int r1,int c1,int r2,int c2,int cnt)
+{
+
+    if(x1==r1 and y1==c1 and x2==r2 and y2==c2)
+    {
+        return 0;
+    }
+    int ans=1e5;
+    if(x1==r1 and y1==c1)
+    {
+        for(int i=0;i<4;i++)
+        {
+            if(x2+dx[i]<(int)maze.size() and x2+dx[i]>=0 and y2+dy[i]<(int)maze[0].size() and y2+dy[i]>=0)
+            {
+                if(maze[x2+dx[i]][y2+dy[i]]!=5 and maze[x2+dx[i]][y2+dy[i]]!=7 and maze[x2+dx[i]][y2+dy[i]]!=13 and (x2+dx[i]!=x1 or y2+dy[i]!=y1))
+                {
+                    maze[x2+dx[i]][y2+dy[i]]+=7;
+                    ans=min(ans,1+MinPath(maze,x1,y1,x2+dx[i],y2+dy[i],r1,c1,r2,c2,cnt+1));
+                    maze[x2+dx[i]][y2+dy[i]]-=7;    
+                }
+            }
+        }
+    }
+    else if(x2==r2 and y2==c2)
+    {
+        for(int i=0;i<4;i++)
+        {
+            if(x1+dx[i]<(int)maze.size() and x1+dx[i]>=0 and y1+dy[i]<(int)maze[0].size() and y1+dy[i]>=0)
+            {
+                if(maze[x1+dx[i]][y1+dy[i]]!=5 and maze[x1+dx[i]][y1+dy[i]]!=6 and maze[x1+dx[i]][y1+dy[i]]!=13 and (x1+dx[i]!=x2 or y1+dy[i]!=y2))
+                {
+                    maze[x1+dx[i]][y1+dy[i]]+=6;
+                    ans=min(ans,1+MinPath(maze,x1+dx[i],y1+dy[i],x2,y2,r1,c1,r2,c2,cnt+1));
+                    maze[x1+dx[i]][y1+dy[i]]-=6;    
+                }
+            }
+        }
+    }
+    else
+    {
+        for(int i=0;i<4;i++)
+        {
+            if(x1+dx[i]>=(int)maze.size() or x1+dx[i]<0 or y1+dy[i]>=(int)maze[0].size() or y1+dy[i]<0)
+            {
+                continue;
+            }
+            if(maze[x1+dx[i]][y1+dy[i]]==5 or maze[x1+dx[i]][y1+dy[i]]==6 or maze[x1+dx[i]][y1+dy[i]]==13)
+            {
+                continue;
+            }
+            for(int j=0;j<4;j++)
+            {
+                if(x2+dx[j]>=(int)maze.size() or x2+dx[j]<0 or y2+dy[j]>=(int)maze[0].size() or y2+dy[j]<0)
+                {
+                    continue;
+                }
+                if(maze[x2+dx[j]][y2+dy[j]]==5 or maze[x2+dx[j]][y2+dy[j]]==7 or maze[x2+dx[j]][y2+dy[j]]==13)
+                {
+                    continue;
+                }
+                if((x1+dx[i]==x2+dx[j] and y1+dy[i]==y2+dy[j]) or (x1+dx[i]==x2 and y1+dy[i]==y2 and x2+dx[j]==x1 and y2+dy[j]==y1)) //서로 교차할려거나 겹치는거.
+                {
+                    continue;
+                }
+                maze[x1+dx[i]][y1+dy[i]]+=6;
+                maze[x2+dx[j]][y2+dy[j]]+=7;
+                ans=min(ans,1+MinPath(maze,x1+dx[i],y1+dy[i],x2+dx[j],y2+dy[j],r1,c1,r2,c2,cnt+1));
+                maze[x1+dx[i]][y1+dy[i]]-=6;
+                maze[x2+dx[j]][y2+dy[j]]-=7;
+            }
+        }
+    }
+    
+
+    
+    
+    return ans;
+    
+}
+
+int solution(vector<vector<int>> maze) {
+    int x1=0,x2=0,y1=0,y2=0;
+    int r1=0,c1=0,r2=0,c2=0;
+    for(int i=0;i<maze.size();i++)
+    {
+        for(int j=0;j<maze[i].size();j++)
+        {
+            if(maze[i][j]==1)
+            {
+                maze[i][j]=6;
+                x1=i;
+                y1=j;
+            }
+            if(maze[i][j]==2)
+            {
+                maze[i][j]=7;
+                x2=i;
+                y2=j;
+            }
+            if(maze[i][j]==3)
+            {
+                maze[i][j]=0;
+                r1=i;
+                c1=j;
+            }
+            if(maze[i][j]==4)
+            {
+                maze[i][j]=0;
+                r2=i;
+                c2=j;
+            }
+        }
+    }
+    int answer = MinPath(maze,x1,y1,x2,y2,r1,c1,r2,c2,0);
+    if(answer>=1e5)
+        answer=0;
+    return answer;
+}
