@@ -1,0 +1,69 @@
+/* 2020 Kakao Blind Recurutment 자물쇠와 열쇠
+자물쇠 격자 부분의 빈곳을 채울 수 있는지 열쇠 격자 부분을 회전과 이동을 통해 확인하면 된다.
+딱 격자 끼리 겹쳤을 때 빈곳이 있으면 안되고 겹치는 부분이 있어서도 안된다.
+각 격자크기가 20*20 이하라 모두 확인해보면 된다.
+열 수 있는지 확인하는 것이므로 회전 4방향 에 자물쇠 격자 모든 위치마다 빈곳을 다 채울 수 있는지 확인해 보면 된다.
+시간복잡도: O((M+N)^4*4)
+
+
+*/
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+bool solution(vector<vector<int>> key, vector<vector<int>> lock) {
+    bool answer = false;
+    for(int t=0;t<4;t++)
+    {
+        vector<vector<int>>temp;
+        temp=key;
+        for(int i=0;i<key.size();i++)
+        {
+            for(int j=0;j<key.size();j++)
+            {
+                temp[j][key.size()-(i+1)]=key[i][j];
+            }
+        }
+        key=temp;
+        
+        vector<vector<int>>make(2*key.size()+lock.size(),vector<int>(2*key.size()+lock.size(),0));
+        for(int i=key.size();i<key.size()+lock.size();i++)
+        {
+            for(int j=key.size();j<key.size()+lock.size();j++)
+            {
+                make[i][j]=lock[i-key.size()][j-key.size()];
+            }
+        }
+        
+        for(int i=0;i<key.size()+lock.size()+1;i++)
+        {
+            for(int j=0;j<key.size()+lock.size()+1;j++)
+            {
+                vector<vector<int>>hp=make;
+                for(int x=i;x<i+key.size();x++)
+                {
+                    for(int y=j;y<j+key.size();y++)
+                    {
+                        hp[x][y]=hp[x][y]^key[x-i][y-j];
+                    }
+                }
+                
+                bool ok=true;
+                for(int x=key.size();x<key.size()+lock.size();x++)
+                {
+                    for(int y=key.size();y<key.size()+lock.size();y++)
+                    {
+                        if(!hp[x][y]) ok=false;
+                    }
+                }
+                if(ok) answer=true;
+            }
+        }
+        
+        
+    }
+    
+    return answer;
+}
