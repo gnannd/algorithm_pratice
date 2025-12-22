@@ -1,0 +1,44 @@
+/*백준 10986 나머지 합
+수열이 주어지고 연속된 부분구간합이 M으로 나누어 떨어지는 구간의 개수를 구하는 문제
+수열의 크기는 10^6이하, M은 10^3이하 이다.
+부분합 기법 이용해서 쉽게 풀 수 가 있는데, 우리가 구간합을 계산할 때,
+i j까지 이면 j까지의 누적합 - (i-1)까지의 누적합을 빼서 구한다.
+M으로 나누어 떨어져야 하기 때문에 j까지의 누적합 과 (i-1)까지의 누적합 각각 M으로 나눴을 때 나머지가
+같아야 한다.
+모든 인덱스까지의 누적합을 M으로 나눈 나머지를 저장하는 배열을 만든 후 같은 값들끼리 묶고,
+두개를 뽑는 조합의 수를 구해서 풀면 된다.
+참고로 i=0인경우를 예외처리 해줘야 모든 구간합을 고려하게 된다.
+시간복잡도: O(구간의크기(N)+M)
+시간내에 충분히 풀 수 있다.
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+    int n,m;
+    cin>>n>>m;
+    vector<int>prefix(n+1,0);
+    for(int i=0;i<n;i++)
+    {
+        cin>>prefix[i+1];
+    }
+    vector<int>cnt(m,0);
+    for(int i=0;i<=n;i++)
+    {
+        if(i>0)
+            prefix[i]=(prefix[i-1]+prefix[i])%m;
+        cnt[prefix[i]]+=1;
+    }
+    long long answer=0;
+    for(int i=0;i<m;i++)
+    {
+        answer+=((long long)cnt[i]*(cnt[i]-1))/2;
+    }
+    cout<<answer;
+    
+    return 0;
+}
