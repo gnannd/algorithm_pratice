@@ -1,0 +1,64 @@
+/*백준 25381 ABBC 
+a,b,c 로 이루어진 길이 30만이하인 문자열이 주어진다.
+다음과 같은 시행을 할 수 있는데, 1. A와 그뒤에 B 지우기 2. B와 그뒤에 C지우기 
+조건에 맞아야만 시행을 할 수 있으며, 최대 시행 횟수를 구하는 문제이다.
+
+그리디 알고리즘으로 풀 수 있을 것같아 생각을 해봤다.
+1,2번 시행 둘다 B가 제거된다. 결국 이문제의 답은 B를 최대한 지우는 시행횟수를 찾아야 한다.
+가설을 두가지 들 수 있는데,
+1.순서대로 탐색을하다 B를 마주쳤을 때, 그 B를 없앨 수 있으면 지워야한다.
+2. AB , BC 조합에서 BC로 없앨 수 있는 조합부터 먼저 없애야한다.
+
+정당성의 증명:
+1. 제일먼저 마주치는 B를 지울 수 있는데 지우지 않는다는 답이 있다고 하면 그 어떠한 답이든 지금 B를 포함하는 답으로 만들 수 있다.
+2. ABC~ 이런 구조가 있다고 하면 이 문자열 뒤에 어떤 B가 오면 그 C로 지울 순 없지만 A로 지울 수 있다.
+그렇기 때문에 지금 이문자열 구조에서 B를 지운다고 하면 C로 먼저 지우는 것이 항상 최적의 답으로 가는 해결법이다.
+
+시간복잡도: O(S) S의 크기가 30만이하로 충분히 시간내에 풀 수 있다.
+
+그리디 풀 때는 어떤걸 탐욕적으로 해결할지를 익스플로잇 해야 할듯
+*/
+
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+int main()
+{
+    string s;
+    cin>>s;
+    queue<int>q;
+    int answer=0;
+    vector<int>exist(s.size(),0);
+    for(int i=0;i<s.size();i++)
+    {
+        if(s[i]=='B')
+        {
+            q.push(i);
+        }
+        else if(s[i]=='C' and !q.empty())
+        {
+            exist[q.front()]=1;
+            answer+=1;
+            q.pop();
+        }
+    }
+    queue<int>q_A;
+    for(int i=0;i<s.size();i++)
+    {
+        if(s[i]=='A')
+        {
+            q_A.push(i);
+        }
+        else if(s[i]=='B' and !q_A.empty() and exist[i]==0)
+        {
+            answer+=1;
+            q_A.pop();
+        }
+    }
+    
+    
+    cout<<answer;
+    return 0;
+}
