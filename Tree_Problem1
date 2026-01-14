@@ -1,0 +1,71 @@
+/*백준 14267 회사 문화1
+상사와 부하의 관계를 나타는 조직도에서 누가 칭찬을 받으면 그밑에 부하들도 칭찬을 똑같이 받는다.
+조직 관계와 최초 칭찬을 받은 부하와 그 값이 여러 주어질 때, 모든 부하들의 최종 칭찬 값을 출력해라.  
+조직원 수는 N이하(십만 이하)이다.
+
+계층구조가 명확하기에 트리가 생각나 이용하여 풀려고 하였다. 조직 관계를 
+배열을 써서 간단하게 구현했다.
+
+그다음 최초 칭찬받은 부하와 그값을  아까 만든 구조에 집어 넣었고
+위에서 부터 차례로 칭찬 누적값을 부하 직원들에게 전달하였다.
+
+시간은 조직원의 수 N만큼 걸릴 것으로 예상되었고, 실제로도 그러하였다. 
+
+시간 복잡도: O(n)
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct Node
+{
+    int score=0;
+    vector<int>point;
+};
+
+void f(vector<Node>&cnt,int i)
+{
+    if(cnt[i].point.size()==0)  return;
+    for(int j=0;j<cnt[i].point.size();j++)
+    {
+        int next=cnt[i].point[j];
+        cnt[next].score+=cnt[i].score;
+        f(cnt,next);
+    }
+}
+
+int main()
+{
+    int n,m;
+    cin>>n>>m;
+    vector<Node>cnt(n+1);
+    //계층구조를 트리로 표현현
+    for(int i=1;i<=n;i++)
+    {
+        int xx;
+        cin>>xx;
+        if(i==1)
+        {
+            continue;
+        }
+        cnt[xx].point.push_back(i);
+    }
+    //각 노드에 최초 칭찬 수치 집어넣기
+    for(int i=0;i<m;i++)
+    {
+        int j,w;
+        cin>>j>>w;
+        cnt[j].score+=w;
+    }
+    
+    //모든 노드를 순회하면서 값누적시켜 내려보내기
+    f(cnt,1);
+    for(int i=1;i<=n;i++)
+    {
+        cout<<cnt[i].score<<' ';
+    }
+    
+    return 0;
+}
