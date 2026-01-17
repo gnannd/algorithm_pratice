@@ -1,0 +1,58 @@
+/*2109 순회강연
+n개의 대학에서 d일안에 와서 강연을 해주면 p만큼 금액을 준다고 했을한다.
+여러n에 대하여 d,p가 주어질 때 p의 최대값은?
+n,d,p(10000이하)
+
+탐욕적 해결법으로 명확하게 풀 수 있는 문제이다.
+해결법:
+내림차순 정렬하여 최대값부터 계속 뽑아서 할 수 있는 일자내에서 비어있는 일자 끝부터 채워나가면 됌.
+
+증명:
+1.d일내 할 수 있는 강연중 최대금액a를 가진 강연이 있다고 하면 그강연은 무조건 포함되어야 한다.
+아닌 답이 있더라도 언제든 이 방법으로 교체가 가능하고 더나은 답을 기대할 수 있기 때문이다.
+2.더하여 할 수 있는 일자중 최대한 뒤로 미루어야 한다.
+이것도 또한 아닌 답이 있더라도 언제든 이방법으로 교체 가능하고 더나은 답을 기대할 수 있다.
+
+시간복잡도: O(n^2) : n이 만이하 라 충분히 시간내에 풀어진다.
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+int main()
+{
+    int n;
+    cin>>n;
+    vector<pair<int,int>>infor(n);
+    for(int i=0;i<n;i++)
+    {
+        int a,b;
+        cin>>a>>b;
+        infor[i].first=a;
+        infor[i].second=b;
+    }
+    vector<int>cnt(10001);
+    int answer=0;
+    sort(infor.begin(),infor.end(),greater<pair<int,int>>());
+    for(int i=0;i<infor.size();i++)
+    {
+        int j=infor[i].second;
+        while(j>=1 and cnt[j]!=0)
+        {
+            j--;
+        }
+        
+        if(j!=0)
+        {
+            answer+=infor[i].first;
+            cnt[j]=1;
+        }
+    }
+    
+    cout<<answer;
+    return 0;
+}
