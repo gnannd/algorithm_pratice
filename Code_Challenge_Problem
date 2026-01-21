@@ -1,0 +1,77 @@
+/*2025포로그래머스 코드챌린지 1차예선 홀짝트리
+처음에 모든 노드를 루트로 하여 탐색하여 홀짝트리, 역홀짝 트리를 다 구해볼려고 했으나, O(N^2)이걸림.
+N이 40만이하라,O(N^2)알고리즘으로는 풀 수 없음.
+생각해보면 루트냐아니냐에 따라 짝수노드 <-> 역짝수 , 홀수노드 <->역홀수
+각 노드에 대해 루트로 하였을떄, a유형:역홀수/짝수인지, b유형:홀/짝인지 구한다음  각트리에 에대해서 탐색해서 a,b유형의 개수를 구한다음, 유형이 하나밖에 없는지 판단, 유형이 하나면 a유형은 홀짝트리가 될것이고, b유형은 역홀짝 트리가 될것임.
+모든 노드탐색비용인 O(N)의 시간복잡도가 걸림.
+시간내에 충분히 풀 수 있다.
+*/
+#include <string>
+#include <vector>
+#include <queue>
+#include <iostream>
+using namespace std;
+
+vector<int> solution(vector<int> nodes, vector<vector<int>> edges) {
+    vector<int> answer(2);
+    vector<vector<int>>dist(1000001);
+    for(int i=0;i<edges.size();i++)
+    {
+        dist[edges[i][0]].push_back(edges[i][1]);
+        dist[edges[i][1]].push_back(edges[i][0]);
+    }
+    //각 노드에 대해 a유형인지,b유형인지
+    vector<bool>p(1000001,true);
+    for(int i=0;i<nodes.size();i++)
+    {
+        if(nodes[i]%2==0)  // b유형은 false 처리. 
+        {
+            if(dist[nodes[i]].size()%2!=0) //자식개수가 홀수
+            {
+                p[nodes[i]]=false;
+            }
+        }
+        else
+        {
+            if(dist[nodes[i]].size()%2==0) //자식 개수가 짝수
+            {
+                p[nodes[i]]=false;
+            }
+        }
+    }
+    vector<bool>cnt(1000001,false);
+    for(int i=0;i<nodes.size();i++)
+    {
+        if(cnt[nodes[i]]!=0)
+            continue;
+        int a=0,b=0;
+        queue<int>explore;
+        int start=nodes[i];
+        explore.push(nodes[i]);
+        while(explore.size())
+        {
+            int x=explore.front();
+            explore.pop();
+            cnt[x]=1;
+            if(p[x]==1)
+                a+=1;
+            else
+                b+=1;
+            for(int j=0;j<dist[x].size();j++)
+            {
+                if(cnt[dist[x][j]]==0)
+                    explore.push(dist[x][j]);
+            }
+        }
+        
+        if(a==1)
+        {
+            answer[0]+=1;
+        }
+        if(b==1)
+        {
+            answer[1]+=1;
+        }
+    }
+    return answer;
+}
