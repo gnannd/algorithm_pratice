@@ -1,0 +1,62 @@
+/*백준2302 극장좌석 
+일렬로 된 좌석의 개수가 주어지고 고정좌석의 번호도 주어진다.
+고정좌석을 제외한 나머지좌석은 양옆좌석으로 바꿀 수 있다.
+이떄 만들어질수 있는 모든 좌석의 경우의 수를 구하는 문제.
+
+브루트포스로 생각해보면 3의 N승으로 N이 40이하라고 하지만 많은 시간이 걸린다.
+이 문제는 다이나믹 문제로 풀 수 있다.
+입력의 형태를 좌석의번호,현재좌석,왼쪽좌석이 비었는지 안비었는지로 설정하면 된다.
+탐색은 왼쪽 현재 오른쪽을 할 수 있다.
+시간복잡도: N*4*3 O(N) 시간내에 풀 수 있다.
+
+
+*/
+
+#include <iostream>
+#include <vector>
+using namespace std;
+int n=0;
+int get_cnt(int num,int left,int current,vector<int>&fixed,vector<vector<vector<int>>>&memo)
+{
+    if(num==n+1) return 1;
+    
+    int &ret=memo[num][left][current];
+    if(ret!=-1) return ret;
+    ret=0;
+    if(fixed[num]==1) //현재 번호가 고정좌석이라면,
+    {
+        ret=get_cnt(num+1,1,0,fixed,memo);
+        return ret;
+    }
+    
+    if(num>=2 and left==0)//왼쪽좌석이 비어있으면(고정좌석이 아님),
+    {
+        ret+=get_cnt(num+1,current,0,fixed,memo);
+    }
+    if(current==0)//현재좌석이 비어있으면(고정좌석이 아님),
+    {
+        ret+=get_cnt(num+1,1,0,fixed,memo);
+    }
+    if(num<n and fixed[num+1]==0)//오른쪽좌석이 고정좌석이 아니면
+    {
+        ret+=get_cnt(num+1,current,1,fixed,memo);
+    }
+    return ret;
+    
+}
+
+int main()
+{
+    int m;
+    cin>>n>>m;
+    vector<int>fixed(n+1);
+    for(int i=0;i<m;i++)
+    {
+        int k;
+        cin>>k;
+        fixed[k]=1;
+    }
+    vector<vector<vector<int>>>memo(n+1,vector<vector<int>>(2,vector<int>(2,-1)));
+    cout<<get_cnt(1,0,0,fixed,memo);//현재정해야할번호,왼쪽번호 좌석 비었는지,현재번호좌석 비었는지
+    return 0;
+}
