@@ -1,0 +1,88 @@
+/*2023 KAKAO BLIND RECRUITMENT 
+
+주어진 표현할려고 하는 원소들을 각각 다확인해보면 된다. 원소의 크기가 10의 15승이고 2의배수씩으로 범위가 커짐.
+시간복잡도는 O(Nlg(10^15))으로 충분히 시간내에 풀 수 있다.
+
+*/
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cmath>
+using namespace std;
+
+int ok(int left,int right,string &p)
+{
+    if(left==right)
+    {
+        if(p[left]=='0')
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+    int mid=(left+right)/2;
+    if(p[mid]=='1')
+    {
+        if(ok(left,mid-1,p)==-1 or ok(mid+1,right,p)==-1) return -1;
+        return 1;
+    }
+    else
+    {
+        if(ok(left,mid-1,p)==0 and ok(mid+1,right,p)==0) return 0;
+        return -1;
+    }
+    
+}
+
+vector<int> solution(vector<long long> numbers) {
+    vector<int> answer;
+    for(int i=0;i<numbers.size();i++)
+    {
+        string s="";
+        while(numbers[i]!=0)
+        {
+            if(numbers[i]%2==0)
+            {
+                s+="0";
+            }
+            else
+            {
+                s+="1";
+            }
+            numbers[i]/=2;
+        }
+        for(int j=10;j>=0;j--)
+        {
+            if(s.size()>pow(2,j)-1)
+            {
+                string c(pow(2,j+1)-1-s.size(),'0');
+                s=s+c;
+                break;
+            }
+        }
+        
+        
+        string p=s;
+        for(int j=s.size()-1;j>=0;j--)
+            p[s.size()-1-j]=s[j];
+        
+         if(ok(0,p.size()-1,p)!=-1)
+         {
+             answer.push_back(1);
+         }
+         else
+         {
+             answer.push_back(0);
+         }
+         
+    }
+    
+    
+    
+    
+    
+    return answer;
+}
