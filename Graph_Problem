@@ -1,0 +1,84 @@
+/*백준1707 이분 그래프 
+테스트 케이스 k가주어지고(<=5)
+각 테스트케이스마다 노드랑 간선의 정보가 주어진다.노드 개수<20000 간선의정보는 <200000, 
+그래프에서 서로 인접하지 않는 정점들 끼리 모아 두개의 집합을 만들 수 있다면 yes, 아니면 no를 출력하라는 문제.
+
+yes가 되기 위해선 
+어떤 정점이든 어느 집합에 속해 있어야 한다. 어느 한점을 시작으로 주변 정점들을 탐색해 가면서 두개의 집합으로
+분리 시켜 놓는다. 각 정점에서 주변 노드를 탐색했는데 같은 집합에 속한 노드를 발견한다면, 이분그래프로 나눌 수 없다.
+이런 식으로 모든 간선을 탐색하여 이분그래프로 만들 수 있는 지를 확인하면 된다.
+
+참고로 그래프 자체가 두개이상의 컴포넌트로 나눠져 있을 수 있는데, 그 경우 각 컴포넌트 따로  두개의 집합을 만들 수 있으면
+yes이다. 각 컴포넌트의 집합들을 어떤식으로 합쳐도 서로 인접하지 않기 때문에 각 컴포너트에서 두개의 집합으로 만들 수 있으면 된다.
+
+시간복잡도 O((V+E)*K)로 간선의 개수 * 테스트개수
+시간내에 충분히 풀 수 있고, 실제로도 그러하였다.
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+int main()
+{
+    int k,v,e;
+    cin>>k;
+    for(int t=0;t<k;t++)
+    {
+        cin>>v>>e;
+        bool answer=true;
+        vector<int>area(v+1,-1);
+        vector<vector<int>>graph(v+1);
+        for(int i=0;i<e;i++)
+        {
+            int a,b;
+            cin>>a>>b;
+            graph[a].push_back(b);
+            graph[b].push_back(a);
+        }
+        
+        for(int i=1;i<=v;i++)
+        {
+            if(area[i]==-1) //아직 접근하지 않았던 정점이 있다면. 탐색.
+            {
+                queue<int>vertax;
+                area[i]=0;
+                vertax.push(i);
+                while(vertax.size())
+                {
+                    int node=vertax.front();
+                    vertax.pop();
+                    for(int j=0;j<graph[node].size();j++)
+                    {
+                        if(area[graph[node][j]]==-1)
+                        {
+                            area[graph[node][j]]=(area[node]+1)%2;
+                            vertax.push(graph[node][j]);
+                        }
+                        else
+                        {
+                            if(area[graph[node][j]]==area[node])
+                                answer=false;
+                        }
+                    }
+                }
+                
+            }
+            
+            
+        }
+        
+        
+        
+        
+        
+        if(answer==true)
+            cout<<"YES\n";
+        else
+            cout<<"NO\n";
+    }
+
+    return 0;
+}
