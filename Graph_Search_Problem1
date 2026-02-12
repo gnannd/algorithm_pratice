@@ -1,0 +1,86 @@
+/*백준 2636 치즈
+네모 n,m(둘다 100이하) 격자판이 주어지고 색칠된부분과 색칠이 되지않는 부분이 주어지는데,
+인접한 색칠된영역의 바깥쪽 색칠된 격자부터 점점 1초가 지날때마다 없어지고, 다없어질때 까지 
+몇초가 걸리는지, 그리고 다 없어지기 바로 전에는 몇개가 남아있는지 출력하는 문제이다.
+문제 설명이 불친절했지만, 예제 그림보고 어떤 매커니즘인지 바로 알 수 있었다.
+
+격자판 가장자리는 무조건 색칠이 되지 않는 부분이다.
+바깥쪽에서 시작하여 색칠되지 않는 격자끼리 너비우선탐색으로 다 탐색하고 그격자들이랑 인접하는 색칠된 부분은
+1초가 지나면 없어진다는 것이기에, 따로 저장해뒀다가 다 탐색후에 없애준다.
+이 방식을 다없어질 떄 까지 반복하면 되는 간단한 문제이다. 그리고 시간은 아무리 못해도 가장자리는 
+무조건 색칠되지 않는 부분이기에 n,m이 100이여도 최대 50번 이하 내로 색칠 된 부분은 다 없어지게 되어 있다.
+
+탐색에 격자판 크기만큼 매 탐색 시간 소모가 되니까, 시간내에 충분히 풀 수 있다는걸 짐작할 수 있었다.
+시간복잡도 O(n*m*min(n,m)/2) 인데 n,m둘다 100이하라 최대50만이하여서 시간내에 충분히 풀 수 있다. 
+실제로 빠른 시간내에 수행되었다.
+*/
+
+#include <iostream>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+int dy[4]={1,0,0,-1};
+int dx[4]={0,-1,1,0};
+
+int main()
+{
+    int n,m;
+    cin>>n>>m;
+    vector<vector<int>>graph(n,vector<int>(m));
+    int answer1=0,answer2=0;//지금 까지 걸린 시간,남은 치즈개수.
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+        {
+            cin>>graph[i][j];
+            if(graph[i][j]==1)
+                answer2+=1;
+        }
+    }
+    while(answer2!=0)
+    {
+        vector<pair<int,int>>ser;
+        ser.push_back(pair<int,int>(0,0));
+        vector<vector<int>>visit(n,vector<int>(m));
+        visit[0][0]=1;
+        vector<pair<int,int>>del;
+        while(ser.size())
+        {
+            pair<int,int> p=ser[ser.size()-1];
+            ser.pop_back();
+            for(int i=0;i<4;i++)
+            {
+                if(p.first+dy[i]>=0 and p.first+dy[i]<n and p.second+dx[i]>=0 and p.second+dx[i]<m)
+                {
+                    if(visit[p.first+dy[i]][p.second+dx[i]]==0)
+                    {
+                        visit[p.first+dy[i]][p.second+dx[i]]=1;
+                        if(graph[p.first+dy[i]][p.second+dx[i]]==1)
+                        {
+                            del.push_back(pair<int,int>(p.first+dy[i],p.second+dx[i]));
+                        }
+                        else
+                        {
+                            ser.push_back(pair<int,int>(p.first+dy[i],p.second+dx[i]));
+                        }
+                    }
+                }
+            }
+        }
+        
+        answer1+=1;
+        if(del.size()==answer2)
+        {
+            break;    
+        }
+        for(int i=0;i<del.size();i++)
+        {
+            graph[del[i].first][del[i].second]=0;
+            answer2-=1;
+        }
+    }
+    cout<<answer1<<'\n'<<answer2;
+    return 0;
+}
