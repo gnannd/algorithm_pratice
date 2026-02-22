@@ -1,0 +1,76 @@
+/*백준 1261 알고스팟
+n*m 격자판이 주어지고(둘다 100이하) 상하좌우로 움직일 수 있고 각 격자는 비어있거나 0, 벽이다 1
+(1,1)에서 출발해 (N,M)으로 갈려면 벽을 최소 몇개 부서야 하는지 출력하는 문제이다.
+
+알고리즘으로 치면 다익스트라 이용해서 풀었다.
+
+최소 경로로 잡는 값이 이동 거리가 아닌 벽을 부수는 것이기 때문에, 다른 격자로 이동할 때 벽이 아니면 가중치가 0이고
+벽이라면 1이렇게 잡아서 최단 경로를 구하는 문제로 바꿀 수 있다.
+사실 상 그럼 시작점에서 출발해 거리가 0으로 갈 수 있는 모든 지점을 다 방문하게 되고 방문하면서 봐왔던
+거리가 1로 갈 수 있는 지점을 다 방문하게 되고 그다음 2 이런식으로 진행하게 된다.
+그래서 min 힙을 이용해서 갈 수 있는 곳들중 제일 가까운 거리부터 가보는 식으로 탐색하였다.
+다익스트라 정당성 증명을 생각하면, 탐색하면서 제일 가까운거리 부터 방문하다 보면 각 지점까지의 최단 경로를 모두 구할 수 있다.
+최종적으로 목표 지점에 도착하면 그때의 결과값을 반환하면 된다.
+
+
+시간복잡도: O(n*m*lg(n*m)) 각 격자마다 max힙 연산 을 하고, 계산해보면 시간복잡도는 이렇게 나온다.
+그리고 n,m이 100이하라 시간내에 충분히 수행할 수 있는 것을 알 수 있고, 실제로도 빠른 시간 거의 4ms 내로
+수행되었다.
+
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <utility>
+
+using namespace std;
+
+int dy[4]={0,-1,1,0};
+int dx[4]={1,0,0,-1};
+
+int main()
+{
+    int n,m;
+    cin>>m>>n;
+    vector<vector<int>>graph(n,vector<int>(m,0));
+    for(int i=0;i<n;i++)
+    {
+        string s;
+        cin>>s;
+        for(int j=0;j<m;j++)
+        {
+            graph[i][j]=int(s[j])-48;
+        }
+    }
+    
+    pair<int,int>start=make_pair(0,0);
+    vector<vector<int>>distance(n,vector<int>(m,-1));
+    priority_queue<pair<int,pair<int,int>>>r;
+    r.push(make_pair(0,make_pair(0,0)));
+    while(!r.empty())
+    {
+        int dis=-r.top().first;
+        pair<int,int>p=r.top().second;
+        r.pop();
+        if(distance[p.first][p.second]!=-1)
+            continue;
+        distance[p.first][p.second]=dis;
+        if(p.first==(n-1) and p.second==(m-1))
+        {
+            cout<<dis;
+            break;
+        }
+        for(int i=0;i<4;i++)
+        {
+            if(p.first+dy[i]>=0 and p.first+dy[i]<n and p.second+dx[i]>=0 and p.second+dx[i]<m)
+            {
+                if(distance[p.first+dy[i]][p.second+dx[i]]==-1)
+                {
+                    r.push(make_pair(-(dis+graph[p.first][p.second]),make_pair(p.first+dy[i],p.second+dx[i])));
+                }
+            }
+        }
+    }
+    return 0;
+}
