@@ -1,0 +1,82 @@
+/*백준 6497 전력난
+무방향 가중치 그래프 정보가 주어지고, 그래프는 항상 연결된 그래프이다.
+최소 스패닝 트리를 찾아 최소 가중치 합을 구해 전제가중치 합에서 빼는 문제이다.
+정점의 개수 n(<200000), 간선의 개수m(<200000)
+쿠르스칼 알고리즘으로 문제를 풀었다, 프림은 구현이 비교적 간단하긴 한데 O(n^2)이걸려 제한 시간에 수행하지 못할 것 같았다.
+참고로 문제에서 모든 가중치 합은 2의31승을 넘지 않는다고 하여 int자료형 사용했다.
+모든 간선을 오름차순으로 정렬한 뒤, 제일 작은 가중치 부터 사이클이 생기지 않는 선에서 추가하여 만들어간다. 
+시간 복잡도 O(C*mlg(m)) C는 테스트 케이스 개수, C가 얼마인지는 안나와 있지만, 여러테스트 케이스 라는 점을 
+보아 많지 않을 거 같아 m이 20만이하인 점을 감안하면, 시간내에 충분히 풀 수 있을 것 같다.
+
+실제로 제한시간내에 약 600ms 안에 수행되었고, cin,cout 동기화 풀었을 경우 약 200ms로 3배 가량 빨라졌다.
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <utility>
+
+using namespace std;
+vector<int>p;
+int find(int num)
+{
+    if(p[num]!=num) p[num]=find(p[num]);
+    return p[num];
+}
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    int n,m;
+    cin>>n>>m;
+    while(n!=0 or m!=0)
+    {
+        int answer=0;
+        vector<pair<int,pair<int,int>>>edge;
+        p=vector<int>(n);
+        vector<int>rank(n);
+        for(int i=0;i<n;i++)
+        {
+            p[i]=i;
+            rank[i]=1;
+        }
+        for(int i=0;i<m;i++)
+        {
+            int a,b,c;
+            cin>>a>>b>>c;
+            answer+=c;
+            edge.push_back(make_pair(c,make_pair(a,b)));
+        }
+
+        int weight=0;
+        sort(edge.begin(),edge.end());
+        for(int i=0;i<m;i++)
+        {
+            int a=find(edge[i].second.first);
+            int b=find(edge[i].second.second);
+            if(a==b)
+                continue;
+            weight+=edge[i].first;
+            if(rank[a]==rank[b])
+            {
+                p[b]=a;
+                rank[a]+=1;
+            }
+            else if(rank[b]>rank[a])
+            {
+                p[a]=b;
+            }
+            else
+            {
+                p[b]=a;
+            }
+        }
+        answer-=weight;
+        cout<<answer<<'\n';
+        cin>>n>>m;
+    }
+
+    return 0;
+}
